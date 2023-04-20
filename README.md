@@ -17,11 +17,11 @@ http://www.apache.org/licenses/LICENSE-2.0
 Support ISA
 ========================================
 
-RV32I
+#### RV32I
 ```
 (Not yet supported) -> fence, fence.i, ecall, ebreak, uret, sret, mret, wfi, sfence.vma
 ```
-RV32V
+#### RV32V
 ```
 vl, vls, vs, vss, opivv (Vector mask is not yet supported)
 ```
