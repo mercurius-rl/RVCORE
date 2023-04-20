@@ -4,6 +4,7 @@ module datapath(
 	input			rst,
 
 	input			ex_stall,
+	input			ex_mod_stall,
 
 	input			i_jump,
 
@@ -78,7 +79,7 @@ module datapath(
 		if (rst) begin
 			r_fd_pc			<=	32'h0;
 			r_fd_inst		<=	32'h0;
-		end else if (!stall && !ex_stall) begin
+		end else if (!stall && !ex_stall && !ex_mod_stall) begin
 			r_fd_pc			<=	i_f_pc;
 			r_fd_inst		<=	i_f_inst;
 		end else begin

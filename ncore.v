@@ -1,4 +1,7 @@
-module core (
+module core #(
+	parameter RVV = "FALSE",
+	parameter VLEN = 128
+)(
 	input			clk,
 	input			rst,
 
@@ -14,6 +17,8 @@ module core (
 	output	[31:0]	o_memaddr
 );
 
+	wire			w_vec_exec;
+
 	wire	[31:0]	w_pc;
 
 	wire			w_jump;
@@ -23,7 +28,7 @@ module core (
 		.clk		(clk),
 		.rst		(rst),
 
-		.stall		(i_exstall),
+		.stall		(i_exstall || w_vec_exec),
 
 		.jp_en		(w_jump),
 		.jp_addr	(w_jump_addr),
@@ -39,10 +44,26 @@ module core (
 	wire	[6:0]	w_funct7;
 	wire	[6:0]	w_op;
 
+	wire			w_read_en;
+	wire	[31:0]	w_write_data;
+	wire			w_write_en;
+	wire	[31:0]	w_memadd;
+
 	wire			w_csri;
 	wire	[1:0]	w_csrop;
 	wire	[11:0]	w_csraddr;
 	wire			w_csrr;
+
+	wire	[10:0]	w_sew;
+	wire	[3:0]	w_lmul;
+	wire	[31:0]	w_venum;
+
+	assign	w_venum =	(w_sew == 11'h08)	? (VLEN /   8) *  w_lmul	:	// 8bit
+						(w_sew == 11'h10)	? (VLEN /  16) *  w_lmul	:	// 16bit
+						(w_sew == 11'h20)	? (VLEN /  32) *  w_lmul	:	// 32bit
+						(w_sew == 11'h40)	? (VLEN /  64) *  w_lmul	:	// 64bit
+						(w_sew == 11'h80)	? (VLEN / 128) *  w_lmul	:	// 128bit
+						0;
 
 	wire	[31:0]	w_csrid;
 
@@ -57,8 +78,8 @@ module core (
 	decoder dc(
 		.i_inst		(i_inst),
 
-		.o_mwen		(o_write_en),
-		.o_mren		(o_read_en),
+		.o_mwen		(w_write_en),
+		.o_mren		(w_read_en),
 
 		.o_imm_rs	(w_imm_rs),
 		.o_rfwe		(w_rfwe),
@@ -117,6 +138,9 @@ module core (
 		.clk		(clk),
 		.rst		(rst),
 
+		.o_sew		(w_sew),
+		.o_lmul		(w_lmul),
+
 		.i_datain	(w_csrid),
 		.o_dataout	(w_csrod),
 		.i_csr_op	(w_csrop),
@@ -136,8 +160,6 @@ module core (
 		.o_result	(w_result)
 	);
 
-	assign	o_memaddr	=	w_result;
-
 	reg	r_csrr;
 
 	always @(posedge clk) begin
@@ -149,12 +171,71 @@ module core (
 	end
 
 	assign	w_rd	=	(r_csrr)	?	w_csrod :
-						(o_read_en)	?	i_read_data :
+						(w_read_en)	?	i_read_data :
 										w_result;
 
 	assign	w_da =		w_rs1;
 	assign	w_db =		(w_imm_rs)	? w_imm :	w_rs2;
 
 	assign	o_write_data	=	w_rs2;
+
+	generate
+		if (RVV == "TRUE") begin
+			wire	[31:0]	w_vmemaddr;
+	
+			wire			w_vwrite_en;
+			wire			w_vread_en;
+
+			wire	[31:0]	w_vwrite_data;
+
+			vector_ex #(
+				.VLEN			(VLEN)
+			) vector_ex (
+				.clk			(clk),
+				.rst			(rst),
+
+				.busy			(w_vec_exec),
+
+				.i_ops			(w_op),		// operation
+				.i_funct6		(w_funct7[6:1]),
+
+				.i_rs1			(w_rs1),
+				.i_rs2			(w_rs2),
+				.i_vs1a			(w_rs1a),
+				.i_vs2a			(w_rs2a),
+				.i_vs3a			(w_rda),
+
+				// Read/Write length and other parameter
+				.i_sew			(w_sew),	// element width of vector
+				.i_lmul			(w_lmul),	// using register length
+				.i_venum		(w_venum),	// number of vector element
+
+				// Memory interface access
+				.o_write_en		(w_vwrite_en),
+				.o_write_data	(w_vwrite_data),
+
+				.o_read_en		(w_vread_en),
+				.i_read_data	(i_read_data),
+				.o_memaddr		(w_vmemaddr)
+			);
+
+			assign	o_memaddr		=	(w_vec_exec)	?	w_vmemaddr		:	w_result;
+	
+			assign	o_write_en		=	(w_vec_exec)	?	w_vwrite_en		:	w_write_en;
+			assign	o_read_en		=	(w_vec_exec)	?	w_vread_en		:	w_read_en;
+
+			assign	o_write_data	=	(w_vec_exec)	?	w_vwrite_data	:	w_rs2;
+		end else begin
+
+			assign	o_memaddr		=	w_result;
+	
+			assign	o_write_en		=	w_write_en;
+			assign	o_read_en		=	w_read_en;
+
+			assign	o_write_data	=	w_rs2;
+
+			assign	w_vec_exec	=	0;
+		end
+	endgenerate
 
 endmodule
