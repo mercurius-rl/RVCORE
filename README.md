@@ -1,4 +1,4 @@
-RISC-V Core (part of RV32I) written in Verilog
+RISC-V Core written in Verilog
 ===============================
 
 - ver.0.2
