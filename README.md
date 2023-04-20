@@ -19,11 +19,11 @@ Support ISA
 
 #### RV32I
 ```
-(Not yet supported) -> fence, fence.i, ecall, ebreak, uret, sret, mret, wfi, sfence.vma
+(Unimplemented) fence, fence.i, ecall, ebreak, uret, sret, mret, wfi, sfence.vma
 ```
 #### RV32V
 ```
-vl, vls, vs, vss, opivv (Vector mask is not yet supported)
+vl, vls, vs, vss, opivv (Vector mask function not implemented)
 ```
 
 Sample
