@@ -1,4 +1,7 @@
-module core (
+module core #(
+	parameter RVV = "FALSE",
+	parameter VLEN = 128
+)(
 	input			clk,
 	input			rst,
 
@@ -25,6 +28,8 @@ module core (
 	wire	[31:0]	w_dm_fdata, w_em_fdata, w_ew_fdata, w_mw_fdata;
 
 	wire			w_pstall;
+
+	wire			w_vec_exec;
 	
 	// ---------- Fetch ----------
 
@@ -37,7 +42,7 @@ module core (
 		.clk		(clk),
 		.rst		(rst),
 
-		.stall		(i_exstall || w_pstall),
+		.stall		(i_exstall || w_pstall || w_vec_exec),
 
 		.jp_en		(w_jump),
 		.jp_addr	(w_jump_addr),
@@ -61,6 +66,17 @@ module core (
 	wire	[1:0]	w_d_csrop;
 	wire	[11:0]	w_d_csraddr;
 	wire			w_d_csrr;
+
+	wire	[10:0]	w_sew;
+	wire	[3:0]	w_lmul;
+	wire	[31:0]	w_venum;
+
+	assign	w_venum =	(w_sew == 11'h08)	? (VLEN /   8) *  w_lmul	:	// 8bit
+						(w_sew == 11'h10)	? (VLEN /  16) *  w_lmul	:	// 16bit
+						(w_sew == 11'h20)	? (VLEN /  32) *  w_lmul	:	// 32bit
+						(w_sew == 11'h40)	? (VLEN /  64) *  w_lmul	:	// 64bit
+						(w_sew == 11'h80)	? (VLEN / 128) *  w_lmul	:	// 128bit
+						0;
 
 	wire	[31:0]	w_d_csrid;
 
@@ -143,6 +159,9 @@ module core (
 		.clk		(clk),
 		.rst		(rst),
 
+		.o_sew		(w_sew),
+		.o_lmul		(w_lmul),
+
 		.i_datain	(w_d_csrid),
 		.o_dataout	(w_d_csrod),
 		.i_csr_op	(w_d_csrop),
@@ -190,7 +209,7 @@ module core (
 	wire	[4:0]	w_m_rs2a, w_m_rda;
 	wire			w_m_rfwe;
 
-	assign	o_memaddr	=	w_m_result;
+	wire			w_m_write_en, w_m_read_en;
 
 	// ---------- Write Back ---------- 
 
@@ -208,30 +227,31 @@ module core (
 
 	
 	datapath dp(
-		.clk		(clk),
-		.rst		(rst),
+		.clk			(clk),
+		.rst			(rst),
 
-		.ex_stall	(i_exstall),
+		.ex_stall		(i_exstall),
+		.ex_mod_stall	(w_vec_exec),
 
-		.i_jump		(w_jump),
+		.i_jump			(w_jump),
 
-		.o_fdm1		(w_forward_dm1),
-		.o_fdm2		(w_forward_dm2),
-		.o_fem1		(w_forward_em1),
-		.o_fem2		(w_forward_em2),
-		.o_few1		(w_forward_ew1),
-		.o_few2		(w_forward_ew2),
-		.o_fmw2		(w_forward_mw2),
+		.o_fdm1			(w_forward_dm1),
+		.o_fdm2			(w_forward_dm2),
+		.o_fem1			(w_forward_em1),
+		.o_fem2			(w_forward_em2),
+		.o_few1			(w_forward_ew1),
+		.o_few2			(w_forward_ew2),
+		.o_fmw2			(w_forward_mw2),
 
-		.o_dm_fdata	(w_dm_fdata),
-		.o_em_fdata	(w_em_fdata),
-		.o_ew_fdata	(w_ew_fdata),
-		.o_mw_fdata	(w_mw_fdata),
+		.o_dm_fdata		(w_dm_fdata),
+		.o_em_fdata		(w_em_fdata),
+		.o_ew_fdata		(w_ew_fdata),
+		.o_mw_fdata		(w_mw_fdata),
 
-		.i_f_pc		(w_f_pc),
-		.i_f_inst	(i_inst),
-		.o_d_pc		(w_d_pc),
-		.o_d_inst	(w_inst),
+		.i_f_pc			(w_f_pc),
+		.i_f_inst		(i_inst),
+		.o_d_pc			(w_d_pc),
+		.o_d_inst		(w_inst),
 
 		.i_d_rs1a(w_d_rs1a), .i_d_rs2a(w_d_rs2a), .i_d_rda(w_d_rda),
 		.i_d_rs1(w_d_rs1), .i_d_rs2(w_d_rs2), .i_d_imm(w_d_imm),
@@ -246,10 +266,10 @@ module core (
 		.o_e_csrr(w_e_csrr),
 		.o_e_csrod(w_e_csrod),
 
-		.i_d_aluctl	(w_d_aluctl),
-		.i_d_imm_rs	(w_d_imm_rs),
-		.o_e_aluctl	(w_e_aluctl),
-		.o_e_imm_rs	(w_e_imm_rs),
+		.i_d_aluctl		(w_d_aluctl),
+		.i_d_imm_rs		(w_d_imm_rs),
+		.o_e_aluctl		(w_e_aluctl),
+		.o_e_imm_rs		(w_e_imm_rs),
 
 		.i_e_rs2a(w_e_rs2a), .i_e_rda(w_e_rda),
 		.i_e_rs2(w_eb_rs2), .i_e_result(w_e_result),
@@ -260,7 +280,7 @@ module core (
 		.o_m_rs2a(w_m_rs2a), .o_m_rda(w_m_rda),
 		.o_m_rs2(w_m_rs2), .o_m_result(w_m_result),
 		.o_m_rfwe(w_m_rfwe),
-		.o_m_write_en(o_write_en), .o_m_read_en(o_read_en),
+		.o_m_write_en(w_m_write_en), .o_m_read_en(w_m_read_en),
 		.o_m_csrr(w_m_csrr),
 		.o_m_csrod(w_m_csrod),
 
@@ -275,9 +295,9 @@ module core (
 		.o_w_csrr(w_w_csrr),
 		.o_w_csrod(w_w_csrod),
 
-		.i_w_rd(w_w_rd),
+		.i_w_rd			(w_w_rd),
 
-		.stall(w_pstall)
+		.stall			(w_pstall)
 	);
 
 
@@ -294,9 +314,68 @@ module core (
 						w_e_rs2;
 	
 	// Memory Access stage forward
+	// -- o_write_data
 
-	assign	o_write_data	=	(w_forward_mw2)	?
-								w_mw_fdata :
-								w_m_rs2;
+	generate
+		if (RVV == "TRUE") begin
+			wire	[31:0]	w_vmemaddr;
+	
+			wire			w_vwrite_en;
+			wire			w_vread_en;
+
+			wire	[31:0]	w_vwrite_data;
+
+			vector_ex #(
+				.VLEN			(VLEN)
+			) vector_ex (
+				.clk			(clk),
+				.rst			(rst),
+
+				.busy			(w_vec_exec),
+
+				.i_ops			(w_d_op),		// operation
+				.i_funct6		(w_d_funct7[6:1]),
+
+				.i_rs1			(w_d_rs1),
+				.i_rs2			(w_d_rs2),
+				.i_vs1a			(w_d_rs1a),
+				.i_vs2a			(w_d_rs2a),
+				.i_vs3a			(w_d_rda),
+
+				// Read/Write length and other parameter
+				.i_sew			(w_sew),	// element width of vector
+				.i_lmul			(w_lmul),	// using register length
+				.i_venum		(w_venum),	// number of vector element
+
+				// Memory interface access
+				.o_write_en		(w_vwrite_en),
+				.o_write_data	(w_vwrite_data),
+
+				.o_read_en		(w_vread_en),
+				.i_read_data	(i_read_data),
+				.o_memaddr		(w_vmemaddr)
+			);
+
+			assign	o_memaddr		=	(w_vec_exec)	?	w_vmemaddr	:	w_m_result;
+	
+			assign	o_write_en		=	(w_vec_exec)	?	w_vwrite_en	:	w_m_write_en;
+			assign	o_read_en		=	(w_vec_exec)	?	w_vread_en	:	w_m_read_en;
+
+			assign	o_write_data	=	(w_vec_exec)	? w_vwrite_data :
+										(w_forward_mw2)	? w_mw_fdata :
+										w_m_rs2;
+		end else begin
+
+			assign	o_memaddr		=	w_m_result;
+	
+			assign	o_write_en		=	w_m_write_en;
+			assign	o_read_en		=	w_m_read_en;
+
+			assign	o_write_data	=	(w_forward_mw2)	? w_mw_fdata :
+										w_m_rs2;
+
+			assign	w_vec_exec	=	0;
+		end
+	endgenerate
 
 endmodule
