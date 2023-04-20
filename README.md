@@ -5,7 +5,7 @@ RISC-V Core written in Verilog
 
 There are simple RISC-V cores (single cycle and pipeline).
 
-###Block Diagram of RV32I Pipelined Core
+### Block Diagram of RV32I Pipelined Core
 ![Pipelined Core](image_rv32i_pipe.png)
 
 License
