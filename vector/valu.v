@@ -1,7 +1,7 @@
 module valu #(
 	parameter	VLEN	=   128
 ) (
-	input	[2:0]		i_sew,
+	input	[10:0]		i_sew,
 
 	input	[VLEN-1:0]	i_dataa,
 	input	[VLEN-1:0]	i_datab,
@@ -27,7 +27,7 @@ module valu #(
 	integer i;
 	always @(*) begin
 		case (i_sew)
-			3'h0: begin
+			11'h8: begin
 				case (i_ctrl)
 					VAND : begin
 						for (i = 0; i <= VLEN; i = i + 8) begin
@@ -84,7 +84,7 @@ module valu #(
 					end
 				endcase
 			end
-			3'h1: begin
+			11'h10: begin
 				case (i_ctrl)
 					VAND : begin
 						for (i = 0; i <= VLEN; i = i + 16) begin
@@ -141,7 +141,7 @@ module valu #(
 					end
 				endcase
 			end
-			3'h2: begin
+			11'h20: begin
 				case (i_ctrl)
 					VAND : begin
 						for (i = 0; i <= VLEN; i = i + 32) begin
@@ -198,7 +198,7 @@ module valu #(
 					end
 				endcase
 			end
-			3'h3: begin
+			11'h40: begin
 				case (i_ctrl)
 					VAND : begin
 						for (i = 0; i <= VLEN; i = i + 64) begin
@@ -255,7 +255,7 @@ module valu #(
 					end
 				endcase
 			end
-			3'h4: begin
+			11'h80: begin
 				case (i_ctrl)
 					VAND : begin
 						for (i = 0; i <= VLEN; i = i + 128) begin
