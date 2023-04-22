@@ -22,7 +22,11 @@ icache ic(
 	.o_inst	(w_imemd)
 );
 
-core cpu(
+core #(
+	.RVM("TRUE"),
+	.RVV("TRUE"),
+	.VLEN(128)
+)cpu(
 	.clk(clk),
 	.rst(rst),
 

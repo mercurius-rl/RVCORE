@@ -34,7 +34,7 @@ module alu(
 			SLTU	:	r_result	<=	i_dataa < i_datab;
 			SLL		:	r_result	<=	i_dataa << i_datab;
 			SRL		:	r_result	<=	i_dataa >> i_datab;
-			SRA		:	r_result	<=	i_dataa >>> i_datab;
+			SRA		:	r_result	<=	$signed(i_dataa) >>> $signed(i_datab);
 			default	:	r_result	<=	0;
 		endcase	
 	end

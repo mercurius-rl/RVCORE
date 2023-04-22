@@ -71,6 +71,7 @@ module decoder (
         .i_op		(o_op			),
 		.i_funct	(o_funct3		),
 		.i_sflag	(i_inst[30]		),
+		.i_mulflag	(i_inst[25]		),
 
 		.o_ctrl		(o_ctrl			)
 	);

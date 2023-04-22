@@ -350,4 +350,5 @@ module vma #(
 	end
 
 	assign	o_maskaddr	=	0;
+	assign	o_idxaddr	=	0;
 endmodule

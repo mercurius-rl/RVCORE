@@ -1,4 +1,5 @@
 module core #(
+	parameter RVM = "FALSE",
 	parameter RVV = "FALSE",
 	parameter VLEN = 128
 )(
@@ -169,6 +170,8 @@ module core #(
 	);
 
 	// ---------- Execute ----------
+	wire	[6:0]	w_e_op;
+	wire	[6:0]	w_e_funct7;
 
 	wire	[31:0]	w_da, w_db;
 
@@ -188,6 +191,7 @@ module core #(
 	wire	[31:0]	w_e_rs1, w_e_rs2;
 
 	wire	[31:0]	w_e_result;
+	wire	[31:0]	w_e_alu_result;
 
 	alu alu(
 		.i_dataa	(w_da),
@@ -195,7 +199,7 @@ module core #(
 		.i_ctrl		(w_e_aluctl),
 
 		.o_of		(),
-		.o_result	(w_e_result)
+		.o_result	(w_e_alu_result)
 	);
 
 	// ---------- Memory Access ----------
@@ -220,7 +224,6 @@ module core #(
 	wire	[31:0]	w_w_csrod;
 
 
-	// ※ csr命令の信号をdatapathに接続する
 	assign	w_w_rd	=	(w_w_csrr)	?	w_w_csrod :
 						(o_read_en)	?	w_w_memdata :
 										w_w_result;
@@ -253,12 +256,16 @@ module core #(
 		.o_d_pc			(w_d_pc),
 		.o_d_inst		(w_inst),
 
+		.i_d_op(w_d_op),
+		.i_d_funct7(w_d_funct7),
 		.i_d_rs1a(w_d_rs1a), .i_d_rs2a(w_d_rs2a), .i_d_rda(w_d_rda),
 		.i_d_rs1(w_d_rs1), .i_d_rs2(w_d_rs2), .i_d_imm(w_d_imm),
 		.i_d_rfwe(w_d_rfwe),
 		.i_d_write_en(w_d_write_en), .i_d_read_en(w_d_read_en),
 		.i_d_csrr(w_d_csrr),
 		.i_d_csrod(w_d_csrod),
+		.o_e_op(w_e_op),
+		.o_e_funct7(w_e_funct7),
 		.o_e_rs1a(w_e_rs1a), .o_e_rs2a(w_e_rs2a), .o_e_rda(w_e_rda),
 		.o_e_rs1(w_e_rs1), .o_e_rs2(w_e_rs2), .o_e_imm(w_e_imm),
 		.o_e_rfwe(w_e_rfwe),
@@ -318,6 +325,22 @@ module core #(
 
 	generate
 		if (RVV == "TRUE") begin
+			wire	[31:0]	w_e_mul_result;
+			malu malu (
+				.i_dataa	(w_da),
+				.i_datab	(w_db),
+				.i_ctrl		(w_e_aluctl),
+
+				.o_result	(w_e_mul_result)
+			);
+			assign	w_e_result = (w_e_funct7 == 7'h1 && w_e_op == 7'b0110011) ?	w_e_mul_result : w_e_alu_result;
+		end else begin
+			assign	w_e_result = w_e_alu_result;
+		end
+	endgenerate
+
+	generate
+		if (RVV == "TRUE") begin
 			wire	[31:0]	w_vmemaddr;
 	
 			wire			w_vwrite_en;
@@ -335,6 +358,7 @@ module core #(
 
 				.i_ops			(w_d_op),		// operation
 				.i_funct6		(w_d_funct7[6:1]),
+				.i_funct3		(w_d_funct3),
 
 				.i_rs1			(w_d_rs1),
 				.i_rs2			(w_d_rs2),

@@ -6,7 +6,7 @@ RISC-V Core written in Verilog
 There are simple RISC-V cores (single cycle and pipeline).
 
 ### Block Diagram of RV32I Pipelined Core
-![Pipelined Core](image_rv32i_pipe.png)
+![Pipelined Core](image_rv32imv_pipe.png)
 
 License
 ========================================
@@ -21,6 +21,7 @@ Support ISA
 ```
 (Unimplemented) fence, fence.i, ecall, ebreak, uret, sret, mret, wfi, sfence.vma
 ```
+#### RV32M
 #### RV32V
 ```
 vl, vls, vs, vss, opivv (Vector mask function not implemented)
@@ -59,3 +60,4 @@ Update history
 2022/12/06: Implemented Pipelined RV32I core.  
 2022/12/23: First commit version 0.1.  
 2023/04/20: Implemented Vector Extension and commit.  
+2023/04/22: Implemented Multiplication and Division Extension and commit.  
