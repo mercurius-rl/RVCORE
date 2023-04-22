@@ -99,7 +99,7 @@ module datapath(
 	reg		[6:0]	r_de_op;
 	reg		[6:0]	r_de_funct7;
 	reg		[4:0]	r_de_rs1a, r_de_rs2a, r_de_rda;
-	reg		[31:0]	r_de_rs1, r_de_rs2, r_de_rd, r_de_imm;
+	reg		[31:0]	r_de_rs1, r_de_rs2, r_de_imm;
 	reg				r_de_rfwe;
 	reg				r_de_write_en, r_de_read_en;
 
@@ -115,7 +115,6 @@ module datapath(
 			r_de_rda		<=	5'h0;
 			r_de_rs1		<=	32'h0;
 			r_de_rs2		<=	32'h0;
-			r_de_rd			<=	32'h0;
 			r_de_imm		<=	32'h0;
 
 			r_de_rfwe		<=	1'b0;
@@ -150,7 +149,6 @@ module datapath(
 			r_de_rda		<=	5'h0;
 			r_de_rs1		<=	32'h0;
 			r_de_rs2		<=	32'h0;
-			r_de_rd			<=	32'h0;
 			r_de_imm		<=	32'h0;
 
 			r_de_rfwe		<=	1'b0;
