@@ -24,12 +24,16 @@ module datapath(
 	output	[31:0]	o_d_pc,
 	output	[31:0]	o_d_inst,
 
+	input	[6:0]	i_d_op,
+	input	[6:0]	i_d_funct7,
 	input	[4:0]	i_d_rs1a, i_d_rs2a, i_d_rda,
 	input	[31:0]	i_d_rs1, i_d_rs2, i_d_imm,
 	input			i_d_rfwe,
 	input			i_d_write_en, i_d_read_en,
 	input			i_d_csrr,
 	input	[31:0]	i_d_csrod,
+	output	[6:0]	o_e_op,
+	output	[6:0]	o_e_funct7,
 	output	[4:0]	o_e_rs1a, o_e_rs2a, o_e_rda,
 	output	[31:0]	o_e_rs1, o_e_rs2, o_e_imm,
 	output			o_e_rfwe,
@@ -92,6 +96,8 @@ module datapath(
 	assign	o_d_inst	=	r_fd_inst;
 
 	// decode to execute
+	reg		[6:0]	r_de_op;
+	reg		[6:0]	r_de_funct7;
 	reg		[4:0]	r_de_rs1a, r_de_rs2a, r_de_rda;
 	reg		[31:0]	r_de_rs1, r_de_rs2, r_de_rd, r_de_imm;
 	reg				r_de_rfwe;
@@ -102,6 +108,8 @@ module datapath(
 
 	always @(posedge clk) begin
 		if (rst) begin
+			r_de_op			<=	7'h0;
+			r_de_funct7		<=	7'h0;
 			r_de_rs1a		<=	5'h0;
 			r_de_rs2a		<=	5'h0;
 			r_de_rda		<=	5'h0;
@@ -118,6 +126,8 @@ module datapath(
 			r_de_aluctl		<=	1'b0;
 			r_de_imm_rs		<=	1'b0;
 		end else if (!ex_stall) begin
+			r_de_op			<=	i_d_op;
+			r_de_funct7		<=	i_d_funct7;
 			r_de_rs1a		<=	i_d_rs1a;
 			r_de_rs2a		<=	i_d_rs2a;
 			r_de_rda		<=	i_d_rda;
@@ -133,6 +143,8 @@ module datapath(
 			r_de_aluctl		<=	i_d_aluctl;
 			r_de_imm_rs		<=	i_d_imm_rs;
 		end else if (stall) begin
+			r_de_op			<=	7'h0;
+			r_de_funct7		<=	7'h0;
 			r_de_rs1a		<=	5'h0;
 			r_de_rs2a		<=	5'h0;
 			r_de_rda		<=	5'h0;
@@ -149,6 +161,8 @@ module datapath(
 			r_de_aluctl		<=	1'b0;
 			r_de_imm_rs		<=	1'b0;
 		end else begin
+			r_de_op			<=	r_de_op;
+			r_de_funct7		<=	r_de_funct7;
 			r_de_rs1a		<=	r_de_rs1a;
 			r_de_rs2a		<=	r_de_rs2a;
 			r_de_rda		<=	r_de_rda;
@@ -165,6 +179,9 @@ module datapath(
 			r_de_imm_rs		<=	r_de_imm_rs;
 		end
 	end
+
+	assign	o_e_op			=	r_de_op;
+	assign	o_e_funct7		=	r_de_funct7;
 
 	assign	o_e_rs1a		=	r_de_rs1a;
 	assign	o_e_rs2a		=	r_de_rs2a;

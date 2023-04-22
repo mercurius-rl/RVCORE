@@ -1,4 +1,5 @@
 module core #(
+	parameter RVM = "FALSE",
 	parameter RVV = "FALSE",
 	parameter VLEN = 128
 )(
@@ -150,6 +151,7 @@ module core #(
 	wire	[31:0]	w_da, w_db;
 
 	wire	[31:0]	w_result;
+	wire	[31:0]	w_alu_result;
 
 	alu alu(
 		.i_dataa	(w_da),
@@ -157,7 +159,7 @@ module core #(
 		.i_ctrl		(w_aluctl),
 
 		.o_of		(),
-		.o_result	(w_result)
+		.o_result	(w_alu_result)
 	);
 
 	reg	r_csrr;
@@ -180,6 +182,23 @@ module core #(
 	assign	o_write_data	=	w_rs2;
 
 	generate
+		if (RVM == "TRUE") begin
+			wire	[31:0]	w_mul_result;
+			malu malu (
+				.i_dataa	(w_da),
+				.i_datab	(w_db),
+				.i_ctrl		(w_aluctl),
+
+				.o_result	(w_mul_result)
+			);
+
+			assign	w_result = (w_funct7 == 7'h1 && w_op == 7'b0110011) ? w_mul_result : w_alu_result;
+		end else begin
+			assign	w_result = w_alu_result;
+		end
+	endgenerate
+
+	generate
 		if (RVV == "TRUE") begin
 			wire	[31:0]	w_vmemaddr;
 	
@@ -198,6 +217,7 @@ module core #(
 
 				.i_ops			(w_op),		// operation
 				.i_funct6		(w_funct7[6:1]),
+				.i_funct3		(w_funct3),
 
 				.i_rs1			(w_rs1),
 				.i_rs2			(w_rs2),
