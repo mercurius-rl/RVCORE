@@ -324,7 +324,7 @@ module core #(
 	// -- o_write_data
 
 	generate
-		if (RVV == "TRUE") begin
+		if (RVM == "TRUE") begin
 			wire	[31:0]	w_e_mul_result;
 			malu malu (
 				.i_dataa	(w_da),
