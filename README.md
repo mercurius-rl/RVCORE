@@ -61,3 +61,4 @@ Update history
 2022/12/23: First commit version 0.1.  
 2023/04/20: Implemented Vector Extension and commit.  
 2023/04/22: Implemented Multiplication and Division Extension and commit.  
+2023/06/01: Implemented Load/Store unit. And fixed testbench for data memory dumpable.  
