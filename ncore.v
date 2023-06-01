@@ -50,6 +50,8 @@ module core #(
 	wire			w_write_en;
 	wire	[31:0]	w_memadd;
 
+	wire	[31:0]	w_lswrite_data, w_read_data;
+
 	wire			w_csri;
 	wire	[1:0]	w_csrop;
 	wire	[11:0]	w_csraddr;
@@ -173,13 +175,22 @@ module core #(
 	end
 
 	assign	w_rd	=	(r_csrr)	?	w_csrod :
-						(w_read_en)	?	i_read_data :
+						(w_read_en)	?	w_read_data :
 										w_result;
 
 	assign	w_da =		w_rs1;
 	assign	w_db =		(w_imm_rs)	? w_imm :	w_rs2;
 
-	assign	o_write_data	=	w_rs2;
+	lsunit lsunit(
+		.i_op		(w_op),
+		.i_funct3	(w_funct3),
+
+		.i_wdata	(w_rs2),
+		.o_rdata	(w_read_data),
+
+		.o_wdata	(w_lswrite_data),
+		.i_rdata	(i_read_data)
+	);
 
 	generate
 		if (RVM == "TRUE") begin
@@ -244,7 +255,7 @@ module core #(
 			assign	o_write_en		=	(w_vec_exec)	?	w_vwrite_en		:	w_write_en;
 			assign	o_read_en		=	(w_vec_exec)	?	w_vread_en		:	w_read_en;
 
-			assign	o_write_data	=	(w_vec_exec)	?	w_vwrite_data	:	w_rs2;
+			assign	o_write_data	=	(w_vec_exec)	?	w_vwrite_data	:	w_lswrite_data;
 		end else begin
 
 			assign	o_memaddr		=	w_result;
@@ -252,7 +263,7 @@ module core #(
 			assign	o_write_en		=	w_write_en;
 			assign	o_read_en		=	w_read_en;
 
-			assign	o_write_data	=	w_rs2;
+			assign	o_write_data	=	w_lswrite_data;
 
 			assign	w_vec_exec	=	0;
 		end

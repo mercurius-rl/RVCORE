@@ -25,6 +25,7 @@ module datapath(
 	output	[31:0]	o_d_inst,
 
 	input	[6:0]	i_d_op,
+	input	[2:0]	i_d_funct3,
 	input	[6:0]	i_d_funct7,
 	input	[4:0]	i_d_rs1a, i_d_rs2a, i_d_rda,
 	input	[31:0]	i_d_rs1, i_d_rs2, i_d_imm,
@@ -33,6 +34,7 @@ module datapath(
 	input			i_d_csrr,
 	input	[31:0]	i_d_csrod,
 	output	[6:0]	o_e_op,
+	output	[2:0]	o_e_funct3,
 	output	[6:0]	o_e_funct7,
 	output	[4:0]	o_e_rs1a, o_e_rs2a, o_e_rda,
 	output	[31:0]	o_e_rs1, o_e_rs2, o_e_imm,
@@ -46,12 +48,16 @@ module datapath(
 	output	[3:0]	o_e_aluctl,
 	output			o_e_imm_rs,
 
+	input	[6:0]	i_e_op,
+	input	[2:0]	i_e_funct3,
 	input	[4:0]	i_e_rs2a, i_e_rda,
 	input	[31:0]	i_e_rs2, i_e_result,
 	input			i_e_rfwe,
 	input			i_e_write_en, i_e_read_en,
 	input			i_e_csrr,
 	input	[31:0]	i_e_csrod,
+	output	[6:0]	o_m_op,
+	output	[2:0]	o_m_funct3,
 	output	[4:0]	o_m_rs2a, o_m_rda,
 	output	[31:0]	o_m_rs2, o_m_result,
 	output			o_m_rfwe,
@@ -97,6 +103,7 @@ module datapath(
 
 	// decode to execute
 	reg		[6:0]	r_de_op;
+	reg		[2:0]	r_de_funct3;
 	reg		[6:0]	r_de_funct7;
 	reg		[4:0]	r_de_rs1a, r_de_rs2a, r_de_rda;
 	reg		[31:0]	r_de_rs1, r_de_rs2, r_de_imm;
@@ -109,6 +116,7 @@ module datapath(
 	always @(posedge clk) begin
 		if (rst) begin
 			r_de_op			<=	7'h0;
+			r_de_funct3		<=	3'h0;
 			r_de_funct7		<=	7'h0;
 			r_de_rs1a		<=	5'h0;
 			r_de_rs2a		<=	5'h0;
@@ -126,6 +134,7 @@ module datapath(
 			r_de_imm_rs		<=	1'b0;
 		end else if (!ex_stall) begin
 			r_de_op			<=	i_d_op;
+			r_de_funct3		<=	i_d_funct3;
 			r_de_funct7		<=	i_d_funct7;
 			r_de_rs1a		<=	i_d_rs1a;
 			r_de_rs2a		<=	i_d_rs2a;
@@ -143,6 +152,7 @@ module datapath(
 			r_de_imm_rs		<=	i_d_imm_rs;
 		end else if (stall) begin
 			r_de_op			<=	7'h0;
+			r_de_funct3		<=	3'h0;
 			r_de_funct7		<=	7'h0;
 			r_de_rs1a		<=	5'h0;
 			r_de_rs2a		<=	5'h0;
@@ -160,6 +170,7 @@ module datapath(
 			r_de_imm_rs		<=	1'b0;
 		end else begin
 			r_de_op			<=	r_de_op;
+			r_de_funct3		<=	r_de_funct3;
 			r_de_funct7		<=	r_de_funct7;
 			r_de_rs1a		<=	r_de_rs1a;
 			r_de_rs2a		<=	r_de_rs2a;
@@ -179,6 +190,7 @@ module datapath(
 	end
 
 	assign	o_e_op			=	r_de_op;
+	assign	o_e_funct3		=	r_de_funct3;
 	assign	o_e_funct7		=	r_de_funct7;
 
 	assign	o_e_rs1a		=	r_de_rs1a;
@@ -197,6 +209,8 @@ module datapath(
 	assign	o_e_csrr		=	i_d_csrr;
 
 	// execute to memory access
+	reg		[6:0]	r_em_op;
+	reg		[2:0]	r_em_funct3;
 	reg		[4:0]	r_em_rs2a, r_em_rda;
 	reg		[31:0]	r_em_rs2, r_em_result;
 	reg				r_em_rfwe;
@@ -207,6 +221,8 @@ module datapath(
 
 	always @(posedge clk) begin
 		if (rst) begin
+			r_em_op			<=	7'h0;
+			r_em_funct3		<=	3'h0;
 			r_em_rs2a		<=	5'h0;
 			r_em_rda		<=	5'h0;
 			r_em_rs2		<=	32'h0;
@@ -218,6 +234,8 @@ module datapath(
 			r_em_csrod		<=	32'h0;
 			r_em_csrr		<=	1'b0;
 		end else if (!ex_stall) begin
+			r_em_op			<=	i_e_op;
+			r_em_funct3		<=	i_e_funct3;
 			r_em_rs2a		<=	i_e_rs2a;
 			r_em_rda		<=	i_e_rda;
 			r_em_rs2		<=	i_e_rs2;
@@ -229,6 +247,8 @@ module datapath(
 			r_em_csrod		<=	i_e_csrod;
 			r_em_csrr		<=	i_e_csrr;
 		end else begin
+			r_em_op			<=	r_em_op;
+			r_em_funct3		<=	r_em_funct3;
 			r_em_rs2a		<=	r_em_rs2a;
 			r_em_rda		<=	r_em_rda;
 			r_em_rs2		<=	r_em_rs2;
@@ -241,6 +261,9 @@ module datapath(
 			r_em_csrr		<=	r_em_csrr;
 		end
 	end
+
+	assign	o_m_op			=	r_em_op;
+	assign	o_m_funct3		=	r_em_funct3;
 
 	assign	o_m_rs2a		=	r_em_rs2a;
 	assign	o_m_rda			=	r_em_rda;

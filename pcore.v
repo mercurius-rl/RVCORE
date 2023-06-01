@@ -170,8 +170,9 @@ module core #(
 	);
 
 	// ---------- Execute ----------
-	wire	[6:0]	w_e_op;
+	wire	[2:0]	w_e_funct3;
 	wire	[6:0]	w_e_funct7;
+	wire	[6:0]	w_e_op;
 
 	wire	[31:0]	w_da, w_db;
 
@@ -203,6 +204,8 @@ module core #(
 	);
 
 	// ---------- Memory Access ----------
+	wire	[2:0]	w_m_funct3;
+	wire	[6:0]	w_m_op;
 
 	wire	[31:0]	w_m_rs2;
 	wire	[31:0]	w_m_result;
@@ -213,7 +216,19 @@ module core #(
 	wire	[4:0]	w_m_rs2a, w_m_rda;
 	wire			w_m_rfwe;
 
+	wire	[31:0]	w_m_write_data, w_lswrite_data, w_m_read_data;
 	wire			w_m_write_en, w_m_read_en;
+
+	lsunit lsunit(
+		.i_op		(w_m_op),
+		.i_funct3	(w_m_funct3),
+
+		.i_wdata	(w_m_write_data),
+		.o_rdata	(w_m_read_data),
+
+		.o_wdata	(w_lswrite_data),
+		.i_rdata	(i_read_data)
+	);
 
 	// ---------- Write Back ---------- 
 
@@ -257,6 +272,7 @@ module core #(
 		.o_d_inst		(w_inst),
 
 		.i_d_op(w_d_op),
+		.i_d_funct3(w_d_funct3),
 		.i_d_funct7(w_d_funct7),
 		.i_d_rs1a(w_d_rs1a), .i_d_rs2a(w_d_rs2a), .i_d_rda(w_d_rda),
 		.i_d_rs1(w_d_rs1), .i_d_rs2(w_d_rs2), .i_d_imm(w_d_imm),
@@ -265,6 +281,7 @@ module core #(
 		.i_d_csrr(w_d_csrr),
 		.i_d_csrod(w_d_csrod),
 		.o_e_op(w_e_op),
+		.o_e_funct3(w_e_funct3),
 		.o_e_funct7(w_e_funct7),
 		.o_e_rs1a(w_e_rs1a), .o_e_rs2a(w_e_rs2a), .o_e_rda(w_e_rda),
 		.o_e_rs1(w_e_rs1), .o_e_rs2(w_e_rs2), .o_e_imm(w_e_imm),
@@ -278,12 +295,16 @@ module core #(
 		.o_e_aluctl		(w_e_aluctl),
 		.o_e_imm_rs		(w_e_imm_rs),
 
+		.i_e_op(w_e_op),
+		.i_e_funct3(w_e_funct3),
 		.i_e_rs2a(w_e_rs2a), .i_e_rda(w_e_rda),
 		.i_e_rs2(w_eb_rs2), .i_e_result(w_e_result),
 		.i_e_rfwe(w_e_rfwe),
 		.i_e_write_en(w_e_write_en), .i_e_read_en(w_e_read_en),
 		.i_e_csrr(w_e_csrr),
 		.i_e_csrod(w_e_csrod),
+		.o_m_op(w_m_op),
+		.o_m_funct3(w_m_funct3),
 		.o_m_rs2a(w_m_rs2a), .o_m_rda(w_m_rda),
 		.o_m_rs2(w_m_rs2), .o_m_result(w_m_result),
 		.o_m_rfwe(w_m_rfwe),
@@ -292,7 +313,7 @@ module core #(
 		.o_m_csrod(w_m_csrod),
 
 		.i_m_rda(w_m_rda),
-		.i_m_result(w_m_result), .i_m_memdata(i_read_data),
+		.i_m_result(w_m_result), .i_m_memdata(w_m_read_data),
 		.i_m_rfwe(w_m_rfwe),
 		.i_m_csrr(w_m_csrr),
 		.i_m_csrod(w_m_csrod),
@@ -386,7 +407,8 @@ module core #(
 			assign	o_read_en		=	(w_vec_exec)	?	w_vread_en	:	w_m_read_en;
 
 			assign	o_write_data	=	(w_vec_exec)	? w_vwrite_data :
-										(w_forward_mw2)	? w_mw_fdata :
+										w_lswrite_data;
+			assign	w_m_write_data	=	(w_forward_mw2)	? w_mw_fdata :
 										w_m_rs2;
 		end else begin
 
@@ -395,8 +417,9 @@ module core #(
 			assign	o_write_en		=	w_m_write_en;
 			assign	o_read_en		=	w_m_read_en;
 
-			assign	o_write_data	=	(w_forward_mw2)	? w_mw_fdata :
+			assign	w_m_write_data	=	(w_forward_mw2)	? w_mw_fdata :
 										w_m_rs2;
+			assign	o_write_data	=	w_lswrite_data;
 
 			assign	w_vec_exec	=	0;
 		end
