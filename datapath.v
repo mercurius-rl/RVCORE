@@ -65,6 +65,9 @@ module datapath(
 	output			o_m_csrr,
 	output	[31:0]	o_m_csrod,
 
+	input	[6:0]	i_m_op,
+	input			i_m_read_en,
+	input			i_m_read_vd,
 	input	[4:0]	i_m_rda,
 	input	[31:0]	i_m_result, i_m_memdata,
 	output			i_m_rfwe,
@@ -78,6 +81,7 @@ module datapath(
 
 	input	[31:0]	i_w_rd,
 
+	output			load_wait,
 	output			stall
 );
 
@@ -89,7 +93,7 @@ module datapath(
 		if (rst) begin
 			r_fd_pc			<=	32'h0;
 			r_fd_inst		<=	32'h0;
-		end else if (!stall && !ex_stall && !ex_mod_stall) begin
+		end else if (!stall && !ex_stall && !ex_mod_stall && !load_wait) begin
 			r_fd_pc			<=	i_f_pc;
 			r_fd_inst		<=	i_f_inst;
 		end else begin
@@ -132,7 +136,7 @@ module datapath(
 
 			r_de_aluctl		<=	1'b0;
 			r_de_imm_rs		<=	1'b0;
-		end else if (!ex_stall) begin
+		end else if (!ex_stall && !load_wait) begin
 			r_de_op			<=	i_d_op;
 			r_de_funct3		<=	i_d_funct3;
 			r_de_funct7		<=	i_d_funct7;
@@ -151,7 +155,7 @@ module datapath(
 			r_de_aluctl		<=	i_d_aluctl;
 			r_de_imm_rs		<=	i_d_imm_rs;
 		end else if (stall) begin
-			r_de_op			<=	7'h0;
+			r_de_op			<=	7'h13;
 			r_de_funct3		<=	3'h0;
 			r_de_funct7		<=	7'h0;
 			r_de_rs1a		<=	5'h0;
@@ -233,7 +237,7 @@ module datapath(
 
 			r_em_csrod		<=	32'h0;
 			r_em_csrr		<=	1'b0;
-		end else if (!ex_stall) begin
+		end else if (!ex_stall && !load_wait) begin
 			r_em_op			<=	i_e_op;
 			r_em_funct3		<=	i_e_funct3;
 			r_em_rs2a		<=	i_e_rs2a;
@@ -293,7 +297,7 @@ module datapath(
 
 			r_mw_csrod		<=	32'h0;
 			r_mw_csrr		<=	1'b0;
-		end else if (!ex_stall) begin
+		end else if (!ex_stall & !load_wait) begin
 			r_mw_rda		<=	i_m_rda;
 			r_mw_result		<=	i_m_result;
 			r_mw_memdata	<=	i_m_memdata;
@@ -334,6 +338,8 @@ module datapath(
 	assign	o_mw_fdata	=	i_w_rd;
 
 	// stall function
+
+	assign	load_wait	=	(i_m_op == 7'b0000011) ? !(i_m_read_en && i_m_read_vd) : 0;
 
 	assign	stall 	=	(((i_d_rs1a == r_de_rda) || (i_d_rs2a == r_de_rda)) && r_de_read_en) || // memory load stall
 						(i_jump && r_de_rfwe && (r_de_rda == i_d_rs1a || r_de_rda == i_d_rs2a)) || // branch stall

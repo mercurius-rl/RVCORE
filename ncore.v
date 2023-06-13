@@ -13,12 +13,14 @@ module core #(
 
 	input	[31:0]	i_read_data,
 	output			o_read_en,
+	input			i_read_vd,
 	output	[31:0]	o_write_data,
 	output			o_write_en,
 	output	[31:0]	o_memaddr
 );
 
 	wire			w_vec_exec;
+	wire			w_load_wait;
 
 	wire	[31:0]	w_pc;
 
@@ -29,7 +31,7 @@ module core #(
 		.clk		(clk),
 		.rst		(rst),
 
-		.stall		(i_exstall || w_vec_exec),
+		.stall		(i_exstall || w_vec_exec || w_load_wait),
 
 		.jp_en		(w_jump),
 		.jp_addr	(w_jump_addr),
@@ -67,6 +69,8 @@ module core #(
 						(w_sew == 11'h40)	? (VLEN /  64) *  w_lmul	:	// 64bit
 						(w_sew == 11'h80)	? (VLEN / 128) *  w_lmul	:	// 128bit
 						0;
+
+	assign	w_load_wait = (w_op == 7'b0000011) ? !(o_read_en && i_read_vd) : 0;
 
 	wire	[31:0]	w_csrid;
 

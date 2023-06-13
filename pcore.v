@@ -13,6 +13,7 @@ module core #(
 
 	input	[31:0]	i_read_data,
 	output			o_read_en,
+	input			i_read_vd,
 	output	[31:0]	o_write_data,
 	output			o_write_en,
 	output	[31:0]	o_memaddr
@@ -31,6 +32,8 @@ module core #(
 	wire			w_pstall;
 
 	wire			w_vec_exec;
+
+	wire			w_load_wait;
 	
 	// ---------- Fetch ----------
 
@@ -43,7 +46,7 @@ module core #(
 		.clk		(clk),
 		.rst		(rst),
 
-		.stall		(i_exstall || w_pstall || w_vec_exec),
+		.stall		(i_exstall || w_pstall || w_vec_exec || w_load_wait),
 
 		.jp_en		(w_jump),
 		.jp_addr	(w_jump_addr),
@@ -312,6 +315,9 @@ module core #(
 		.o_m_csrr(w_m_csrr),
 		.o_m_csrod(w_m_csrod),
 
+		.i_m_op(w_m_op),
+		.i_m_read_en(w_m_read_en),
+		.i_m_read_vd(i_read_vd),
 		.i_m_rda(w_m_rda),
 		.i_m_result(w_m_result), .i_m_memdata(w_m_read_data),
 		.i_m_rfwe(w_m_rfwe),
@@ -325,6 +331,7 @@ module core #(
 
 		.i_w_rd			(w_w_rd),
 
+		.load_wait		(w_load_wait),
 		.stall			(w_pstall)
 	);
 

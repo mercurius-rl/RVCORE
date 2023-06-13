@@ -41,6 +41,7 @@ core #(
 
 	.i_read_data(w_rdata),
 	.o_read_en(w_ren),
+	.i_read_vd(1),
 	.o_write_data(w_wdata),
 	.o_write_en(w_wen),
 	.o_memaddr(w_memaddr)
