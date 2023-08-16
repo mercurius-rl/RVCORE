@@ -1,6 +1,7 @@
 `timescale 1ns / 1ps
 module csr #(
-	parameter		VLEN = 128
+	parameter		VLEN = 128,
+	parameter		CORE_ID = 1
 )(
 	input			clk,
 	input			rst,
@@ -17,7 +18,9 @@ module csr #(
 	input	[31:0]	i_int_pc,
 	input	[31:0]	i_int_mtval,
 
-	input			i_inst_retired,
+	output	[31:0]	o_int_pc,
+	output			o_int_jump,
+
 	input			i_interrupt_enter,
 	input			i_interrupt_exit,
 
@@ -99,13 +102,15 @@ module csr #(
 			mtval	<=	32'h0;
 			mip		<=	32'h0;
 		end else if (i_interrupt_enter) begin
-			mstatus[7]		<=	mstatus[3];
-			mstatus[3]		<=	0;
-			mstatus[12:11]	<=	2'b11;
+			if ((mie[0] && i_int_cause[31]) || !i_int_cause[31]) begin
+				mstatus[7]		<=	mstatus[3];
+				mstatus[3]		<=	0;
+				mstatus[12:11]	<=	2'b11;
 
-			mcause			<=	i_int_cause;
-			mepc			<=	i_int_pc;
-			mtval			<=	i_int_mtval;
+				mcause			<=	i_int_cause;
+				mepc			<=	i_int_pc;
+				mtval			<=	i_int_mtval;
+			end 
 		end else if (i_interrupt_exit) begin
 			mstatus[3]		<=	mstatus[7];
 			mstatus[7]		<=	1;
@@ -188,11 +193,22 @@ module csr #(
 					12'h342: r_out_crs	<=	mcause;
 					12'h343: r_out_crs	<=	mtval;
 					12'h344: r_out_crs	<=	mip;
+
+					// Machine Information
+					12'hF11: r_out_crs	<=	32'h0000BEEF;	// Vendor ID
+					12'hF11: r_out_crs	<=	32'h00000001;	// Architecture ID
+					12'hF11: r_out_crs	<=	32'h00000001;	// Implementation ID
+					12'hF11: r_out_crs	<=	CORE_ID;		// Hardware thread ID
 					default: r_out_crs	<=	r_out_crs;
 				endcase
 			end
 		end
 	end
 	assign	o_dataout = r_out_crs;
+	assign	o_int_pc =	(i_interrupt_enter && ((mie[0] && i_int_cause[31]) || !i_int_cause[31]))
+						?	mtvec
+						:	mepc	;
+
+	assign	o_int_jump = (i_interrupt_enter && ((mie[0] && i_int_cause[31]) || !i_int_cause[31])) || i_interrupt_exit;
 
 endmodule

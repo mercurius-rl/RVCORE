@@ -19,7 +19,11 @@ module decoder (
 	output	[2:0]	o_funct3,
 	output	[6:0]	o_funct7,
 
-	output	[31:0]	o_imm
+	output	[31:0]	o_imm,
+
+	output			o_return,
+	output			o_excp_en,
+	output	[31:0]	o_excp
 );
 
 	assign	o_op	=	i_inst[6:0];
@@ -65,15 +69,25 @@ module decoder (
 	assign	o_csri	=	(o_op == 7'b1110011) ? i_inst[14] : 0;
 	assign	o_csrop	=	(o_op == 7'b1110011) ? i_inst[13:12] : 0;
 	assign	o_csraddr =	(o_op == 7'b1110011) ? i_inst[31:20] : 0;
-	assign	o_csrr	=	o_op == 7'b1110011;
+	assign	o_csrr	=	o_op == 7'b1110011 && o_funct3 != 3'b000;
 
 	aludec ad(
-        .i_op		(o_op			),
+		.i_op		(o_op			),
 		.i_funct	(o_funct3		),
 		.i_sflag	(i_inst[30]		),
 		.i_mulflag	(i_inst[25]		),
 
 		.o_ctrl		(o_ctrl			)
 	);
-    
+
+	assign	o_excp		=	(32'b00000000000000000000000001110011 == i_inst)	?	11	:	// Environment call(Machine mode only)
+							(32'b00000000000100000000000001110011 == i_inst)	?	3	:	// Breakpoint
+																					63	;
+
+	assign	o_excp_en	=	(32'b00000000000000000000000001110011 == i_inst)	?	1'b1:	// Environment call
+							(32'b00000000000100000000000001110011 == i_inst)	?	1'b1:	// Breakpoint
+																					1'b0;
+	
+	assign	o_return	=	27'b000001000000000000001110011 == i_inst[26:0];				// mret, uret, sret
+
 endmodule
