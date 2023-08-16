@@ -19,7 +19,7 @@ Support ISA
 
 #### RV32I
 ```
-(Unimplemented) fence, fence.i, ecall, ebreak, uret, sret, mret, wfi, sfence.vma
+(Unimplemented) fence, fence.i, wfi, sfence.vma
 ```
 #### RV32M
 #### RV32V
@@ -62,3 +62,5 @@ Update history
 2023/04/20: Implemented Vector Extension and commit.  
 2023/04/22: Implemented Multiplication and Division Extension and commit.  
 2023/06/01: Implemented Load/Store unit. And fixed testbench for data memory dumpable.  
+2023/08/16: Implement ecall ebreak mret for single cycle core.  
+2023/08/17: Implement ecall ebreak mret for pipelined core.  

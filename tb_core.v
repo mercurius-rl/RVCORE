@@ -36,6 +36,8 @@ core #(
 
 	.i_exstall(1'b0),
 
+	.i_interrupt(1'b0),
+
 	.i_inst(w_imemd),
 	.o_iaddr(w_imema),
 

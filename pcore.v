@@ -8,6 +8,8 @@ module core #(
 
 	input			i_exstall,
 
+	input			i_interrupt,
+
 	input	[31:0]	i_inst,
 	output	[31:0]	o_iaddr,
 
@@ -42,14 +44,22 @@ module core #(
 	wire			w_jump;
 	wire	[31:0]	w_jump_addr;
 
+	wire	[31:0]	w_excp;
+	wire			w_excp_en;
+
+	wire	[31:0]	w_csr_pc;
+	wire			w_csr_jump;
+
+	wire	[31:0]	w_jump_pc = (w_excp_en) ? w_csr_pc : w_jump_addr;
+
 	pc pc (
 		.clk		(clk),
 		.rst		(rst),
 
 		.stall		(i_exstall || w_pstall || w_vec_exec || w_load_wait),
 
-		.jp_en		(w_jump),
-		.jp_addr	(w_jump_addr),
+		.jp_en		(w_jump || w_csr_jump),
+		.jp_addr	(w_jump_pc),
 
 		.addr		(w_f_pc)
 	);
@@ -95,6 +105,8 @@ module core #(
 
 	wire	[31:0]	w_rs1, w_rs2;
 
+	wire			w_return;
+
 	assign	w_d_rs1 = (w_forward_dm1) ? w_dm_fdata : w_rs1;
 	assign	w_d_rs2 = (w_forward_dm2) ? w_dm_fdata : w_rs2;
 
@@ -122,7 +134,11 @@ module core #(
 		.o_funct3	(w_d_funct3),
 		.o_funct7	(w_d_funct7),
 
-		.o_imm		(w_d_imm)
+		.o_imm		(w_d_imm),
+
+		.o_return	(w_return),
+		.o_excp_en	(w_excp_en),
+		.o_excp		(w_excp)
 	);
 
 	regfile rf(
@@ -159,12 +175,30 @@ module core #(
 
 	wire	[31:0]	w_d_csrod;
 
+	wire	[31:0]	w_d_csr_mtval	=	(i_interrupt)	?	w_d_pc+4	: // set address of external interrupt (provisional)
+										(w_excp_en)		?	w_d_pc+4	: // set address of exception
+															0			;
+
+	wire	[31:0]	w_d_csr_cause	=	(i_interrupt)	?	{1'b1, 31'hb}	: // set address of external interrupt (provisional)
+										(w_excp_en)		?	w_excp			: // set address of exception
+															0				; 
+
 	csr csr(
 		.clk		(clk),
 		.rst		(rst),
 
 		.o_sew		(w_sew),
 		.o_lmul		(w_lmul),
+
+		.i_int_cause(w_d_csr_cause),
+		.i_int_pc	(w_d_pc+4),	
+		.i_int_mtval(w_d_csr_mtval),
+
+		.o_int_jump	(w_csr_jump),
+		.o_int_pc	(w_csr_pc),
+
+		.i_interrupt_enter(w_excp_en || i_interrupt),
+		.i_interrupt_exit(w_return),
 
 		.i_datain	(w_d_csrid),
 		.o_dataout	(w_d_csrod),
@@ -254,7 +288,7 @@ module core #(
 		.ex_stall		(i_exstall),
 		.ex_mod_stall	(w_vec_exec),
 
-		.i_jump			(w_jump),
+		.i_jump			(w_jump || w_csr_jump),
 
 		.o_fdm1			(w_forward_dm1),
 		.o_fdm2			(w_forward_dm2),
