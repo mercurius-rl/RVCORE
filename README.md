@@ -62,7 +62,7 @@ Update history
 2023/04/20: Implemented Vector Extension and commit.  
 2023/04/22: Implemented Multiplication and Division Extension and commit.  
 2023/06/01: Implemented Load/Store unit. And fixed testbench for data memory dumpable.  
-2023/08/16: Implement ecall ebreak mret for single cycle core.  
-2023/08/17: Implement ecall ebreak mret for pipelined core.  
-2023/08/21: Implement illegal instruction exception.  
-2023/08/22: Add decodable function (fence, fence.i).  
+2023/08/16: Implemented ecall ebreak mret for single cycle core.  
+2023/08/17: Implemented ecall ebreak mret for pipelined core.  
+2023/08/21: Implemented illegal instruction exception.  
+2023/08/22: Added decodable function (fence, fence.i).  
