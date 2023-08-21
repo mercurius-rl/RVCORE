@@ -66,9 +66,9 @@ module decoder (
 	assign	o_mwen	=	(o_op == 7'b0100011) ? 1 : 0;
 	assign	o_mren	=	(o_op == 7'b0000011) ? 1 : 0;
 
-	assign	o_csri	=	(o_op == 7'b1110011) ? i_inst[14] : 0;
-	assign	o_csrop	=	(o_op == 7'b1110011) ? i_inst[13:12] : 0;
-	assign	o_csraddr =	(o_op == 7'b1110011) ? i_inst[31:20] : 0;
+	assign	o_csri	=	((!o_return || !o_excp_en) && o_op == 7'b1110011) ? i_inst[14] : 0;
+	assign	o_csrop	=	((!o_return || !o_excp_en) && o_op == 7'b1110011) ? i_inst[13:12] : 0;
+	assign	o_csraddr =	((!o_return || !o_excp_en) && o_op == 7'b1110011) ? i_inst[31:20] : 0;
 	assign	o_csrr	=	o_op == 7'b1110011 && o_funct3 != 3'b000;
 
 	aludec ad(
@@ -82,10 +82,20 @@ module decoder (
 
 	assign	o_excp		=	(32'b00000000000000000000000001110011 == i_inst)	?	11	:	// Environment call(Machine mode only)
 							(32'b00000000000100000000000001110011 == i_inst)	?	3	:	// Breakpoint
+							!(7'b0110011 == o_op || 7'b0010011 == o_op || 7'b0000011 == o_op
+							||7'b0100011 == o_op || 7'b1100011 == o_op || 7'b0010111 == o_op
+							||7'b0110111 == o_op || 7'b1101111 == o_op || 7'b1100111 == o_op
+							||7'b1110011 == o_op || 7'b1110011 == o_op || 7'b0001111 == o_op)
+																				?	2	:	// Illegal instruction 
 																					63	;
 
 	assign	o_excp_en	=	(32'b00000000000000000000000001110011 == i_inst)	?	1'b1:	// Environment call
 							(32'b00000000000100000000000001110011 == i_inst)	?	1'b1:	// Breakpoint
+							!(7'b0110011 == o_op || 7'b0010011 == o_op || 7'b0000011 == o_op
+							||7'b0100011 == o_op || 7'b1100011 == o_op || 7'b0010111 == o_op
+							||7'b0110111 == o_op || 7'b1101111 == o_op || 7'b1100111 == o_op
+							||7'b1110011 == o_op || 7'b1110011 == o_op || 7'b0001111 == o_op)
+																				?	1'b1:	// Illegal instruction 
 																					1'b0;
 	
 	assign	o_return	=	27'b000001000000000000001110011 == i_inst[26:0];				// mret, uret, sret

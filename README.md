@@ -64,3 +64,5 @@ Update history
 2023/06/01: Implemented Load/Store unit. And fixed testbench for data memory dumpable.  
 2023/08/16: Implement ecall ebreak mret for single cycle core.  
 2023/08/17: Implement ecall ebreak mret for pipelined core.  
+2023/08/21: Implement illegal instruction exception.  
+2023/08/22: Add decodable function (fence, fence.i).  
