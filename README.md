@@ -19,7 +19,7 @@ Support ISA
 
 #### RV32I
 ```
-(Unimplemented) fence, fence.i, wfi, sfence.vma
+(Unimplemented) wfi, sfence.vma
 ```
 #### RV32M
 #### RV32V
