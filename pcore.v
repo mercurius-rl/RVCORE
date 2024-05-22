@@ -229,7 +229,6 @@ module core #(
 	wire	[31:0]	w_e_rs1, w_e_rs2;
 
 	wire	[31:0]	w_e_result;
-	wire	[31:0]	w_e_alu_result;
 
 	alu alu(
 		.i_dataa	(w_da),
@@ -237,11 +236,12 @@ module core #(
 		.i_ctrl		(w_e_aluctl),
 
 		.o_of		(),
-		.o_result	(w_e_alu_result)
+		.o_result	(w_e_result)
 	);
 
 	// ---------- Memory Access ----------
 	wire	[2:0]	w_m_funct3;
+	wire	[6:0]	w_m_funct7;
 	wire	[6:0]	w_m_op;
 
 	wire	[31:0]	w_m_rs2;
@@ -255,6 +255,7 @@ module core #(
 
 	wire	[31:0]	w_m_write_data, w_lswrite_data, w_m_read_data;
 	wire			w_m_write_en, w_m_read_en;
+	wire	[31:0]	w_m_alu_result;
 
 	lsunit lsunit(
 		.i_op		(w_m_op),
@@ -334,6 +335,7 @@ module core #(
 
 		.i_e_op(w_e_op),
 		.i_e_funct3(w_e_funct3),
+		.i_e_funct7(w_e_funct7),
 		.i_e_rs2a(w_e_rs2a), .i_e_rda(w_e_rda),
 		.i_e_rs2(w_eb_rs2), .i_e_result(w_e_result),
 		.i_e_rfwe(w_e_rfwe),
@@ -342,6 +344,7 @@ module core #(
 		.i_e_csrod(w_e_csrod),
 		.o_m_op(w_m_op),
 		.o_m_funct3(w_m_funct3),
+		.o_m_funct7(w_m_funct7),
 		.o_m_rs2a(w_m_rs2a), .o_m_rda(w_m_rda),
 		.o_m_rs2(w_m_rs2), .o_m_result(w_m_result),
 		.o_m_rfwe(w_m_rfwe),
@@ -353,7 +356,7 @@ module core #(
 		.i_m_read_en(w_m_read_en),
 		.i_m_read_vd(i_read_vd),
 		.i_m_rda(w_m_rda),
-		.i_m_result(w_m_result), .i_m_memdata(w_m_read_data),
+		.i_m_result(w_m_alu_result), .i_m_memdata(w_m_read_data),
 		.i_m_rfwe(w_m_rfwe),
 		.i_m_csrr(w_m_csrr),
 		.i_m_csrod(w_m_csrod),
@@ -387,17 +390,20 @@ module core #(
 
 	generate
 		if (RVM == "TRUE") begin
-			wire	[31:0]	w_e_mul_result;
-			malu malu (
+			wire	[31:0]	w_m_mul_result;
+			malu #(
+				.CYCLE(2)
+			) malu (
+				.clk		(clk),
 				.i_dataa	(w_da),
 				.i_datab	(w_db),
 				.i_ctrl		(w_e_aluctl),
 
 				.o_result	(w_e_mul_result)
 			);
-			assign	w_e_result = (w_e_funct7 == 7'h1 && w_e_op == 7'b0110011) ?	w_e_mul_result : w_e_alu_result;
+			assign	w_m_alu_result = (w_m_funct7 == 7'h1 && w_m_op == 7'b0110011) ?	w_m_mul_result : w_m_result;
 		end else begin
-			assign	w_e_result = w_e_alu_result;
+			assign	w_m_alu_result = w_m_result;
 		end
 	endgenerate
 

@@ -231,7 +231,9 @@ module core #(
 	generate
 		if (RVM == "TRUE") begin
 			wire	[31:0]	w_mul_result;
-			malu malu (
+			malu #(
+				.CYCLE(1)
+			)malu (
 				.i_dataa	(w_da),
 				.i_datab	(w_db),
 				.i_ctrl		(w_aluctl),

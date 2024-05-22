@@ -1,11 +1,11 @@
 RISC-V Core written in Verilog
 ===============================
 
-- ver.0.2
+- ver.0.3
 
 There are simple RISC-V cores (single cycle and pipeline).
 
-### Block Diagram of RV32I Pipelined Core
+### Block Diagram of RV32IMV Pipelined Core
 ![Pipelined Core](image_rv32imv_pipe.png)
 
 License
@@ -66,3 +66,4 @@ Update history
 2023/08/17: Implemented ecall ebreak mret for pipelined core.  
 2023/08/21: Implemented illegal instruction exception.  
 2023/08/22: Added decodable function (fence, fence.i).  
+2024/05/23: Implemented MALU multicycle mode.  

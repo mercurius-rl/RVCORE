@@ -50,6 +50,7 @@ module datapath(
 
 	input	[6:0]	i_e_op,
 	input	[2:0]	i_e_funct3,
+	input	[6:0]	i_e_funct7,
 	input	[4:0]	i_e_rs2a, i_e_rda,
 	input	[31:0]	i_e_rs2, i_e_result,
 	input			i_e_rfwe,
@@ -58,6 +59,7 @@ module datapath(
 	input	[31:0]	i_e_csrod,
 	output	[6:0]	o_m_op,
 	output	[2:0]	o_m_funct3,
+	output	[6:0]	o_m_funct7,
 	output	[4:0]	o_m_rs2a, o_m_rda,
 	output	[31:0]	o_m_rs2, o_m_result,
 	output			o_m_rfwe,
@@ -215,6 +217,7 @@ module datapath(
 	// execute to memory access
 	reg		[6:0]	r_em_op;
 	reg		[2:0]	r_em_funct3;
+	reg		[6:0]	r_em_funct7;
 	reg		[4:0]	r_em_rs2a, r_em_rda;
 	reg		[31:0]	r_em_rs2, r_em_result;
 	reg				r_em_rfwe;
@@ -240,6 +243,7 @@ module datapath(
 		end else if (!ex_stall && !load_wait) begin
 			r_em_op			<=	i_e_op;
 			r_em_funct3		<=	i_e_funct3;
+			r_em_funct7		<=	i_e_funct7;
 			r_em_rs2a		<=	i_e_rs2a;
 			r_em_rda		<=	i_e_rda;
 			r_em_rs2		<=	i_e_rs2;
@@ -253,6 +257,7 @@ module datapath(
 		end else begin
 			r_em_op			<=	r_em_op;
 			r_em_funct3		<=	r_em_funct3;
+			r_em_funct7		<=	r_em_funct7;
 			r_em_rs2a		<=	r_em_rs2a;
 			r_em_rda		<=	r_em_rda;
 			r_em_rs2		<=	r_em_rs2;
@@ -268,6 +273,7 @@ module datapath(
 
 	assign	o_m_op			=	r_em_op;
 	assign	o_m_funct3		=	r_em_funct3;
+	assign	o_m_funct7		=	r_em_funct7;
 
 	assign	o_m_rs2a		=	r_em_rs2a;
 	assign	o_m_rda			=	r_em_rda;
