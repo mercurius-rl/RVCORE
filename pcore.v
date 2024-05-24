@@ -39,7 +39,7 @@ module core #(
 
 	wire			w_load_wait;
 
-	wire			w_icache_hit;
+	wire			w_icache_hit, w_dcache_hit;
 	
 	// ---------- Fetch ----------
 
@@ -258,7 +258,7 @@ module core #(
 	wire	[4:0]	w_m_rs2a, w_m_rda;
 	wire			w_m_rfwe;
 
-	wire	[31:0]	w_m_write_data, w_lswrite_data, w_m_read_data;
+	wire	[31:0]	w_m_write_data, w_lswrite_data, w_m_read_data, w_lsread_data;
 	wire			w_m_write_en, w_m_read_en;
 	wire	[31:0]	w_m_alu_result;
 
@@ -270,7 +270,7 @@ module core #(
 		.o_rdata	(w_m_read_data),
 
 		.o_wdata	(w_lswrite_data),
-		.i_rdata	(i_read_data)
+		.i_rdata	(w_lsread_data)
 	);
 
 	// ---------- Write Back ---------- 
@@ -281,9 +281,10 @@ module core #(
 	wire			w_w_csrr;
 	wire	[31:0]	w_w_csrod;
 
+	wire			w_read_en;
 
 	assign	w_w_rd	=	(w_w_csrr)	?	w_w_csrod :
-						(o_read_en)	?	w_w_memdata :
+						(w_read_en)	?	w_w_memdata :
 										w_w_result;
 
 	
@@ -449,14 +450,14 @@ module core #(
 				.o_write_data	(w_vwrite_data),
 
 				.o_read_en		(w_vread_en),
-				.i_read_data	(i_read_data),
+				.i_read_data	(w_lsread_data),
 				.o_memaddr		(w_vmemaddr)
 			);
 
 			assign	o_memaddr		=	(w_vec_exec)	?	w_vmemaddr	:	w_m_result;
 	
 			assign	o_write_en		=	(w_vec_exec)	?	w_vwrite_en	:	w_m_write_en;
-			assign	o_read_en		=	(w_vec_exec)	?	w_vread_en	:	w_m_read_en;
+			assign	w_read_en		=	(w_vec_exec)	?	w_vread_en	:	w_m_read_en;
 
 			assign	o_write_data	=	(w_vec_exec)	? w_vwrite_data :
 										w_lswrite_data;
@@ -467,7 +468,7 @@ module core #(
 			assign	o_memaddr		=	w_m_result;
 	
 			assign	o_write_en		=	w_m_write_en;
-			assign	o_read_en		=	w_m_read_en;
+			assign	w_read_en		=	w_m_read_en;
 
 			assign	w_m_write_data	=	(w_forward_mw2)	? w_mw_fdata :
 										w_m_rs2;
@@ -477,7 +478,7 @@ module core #(
 		end
 	endgenerate
 
-	cache_base cache (
+	icache icache (
 		.clk		(clk), 
 		.rst		(rst),
 
@@ -492,5 +493,23 @@ module core #(
 	);
 
 	assign	o_iread_en	=	!w_icache_hit;
+
+	dcache dcache (
+		.clk		(clk), 
+		.rst		(rst),
+
+		.o_hit		(w_dcache_hit),
+
+		.i_wen		(o_write_en),
+		.i_wdata	(o_write_data),
+		.o_rdata	(w_lsread_data),
+		.i_addr		(o_memaddr),
+
+		.i_men		(i_read_vd),
+		.i_maddr	(o_memaddr),
+		.i_mdata	(i_read_data)
+	);
+
+	assign	o_read_en	=	!w_dcache_hit && w_read_en;
 
 endmodule

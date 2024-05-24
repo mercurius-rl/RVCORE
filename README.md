@@ -69,3 +69,4 @@ Update history
 2024/05/23: Implemented MALU multicycle mode.  
 2024/05/24: Add Instruction cache, and setup Data cache Port.  
 2024/05/24: Fix testbench and simulation script.  
+2024/05/24: Add Data cache and rename module.  

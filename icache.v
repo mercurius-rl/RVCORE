@@ -1,4 +1,4 @@
-module icache #(
+module imem #(
 	parameter	DELAY = 5
 )(
 	input				clk,

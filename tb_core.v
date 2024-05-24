@@ -22,7 +22,7 @@ always #(STEP/2) begin
 	clk	<=	~clk;
 end
 
-icache ic(
+imem imem(
 	.clk	(clk),
 	.rst	(rst),
 	.i_ren	(w_iren),

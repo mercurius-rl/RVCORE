@@ -26,7 +26,7 @@ module core #(
 	wire			w_vec_exec;
 	wire			w_load_wait;
 
-	wire			w_icache_hit;
+	wire			w_icache_hit, w_dcache_hit;
 
 	wire	[31:0]	w_pc;
 	wire	[31:0]	w_inst;
@@ -66,6 +66,7 @@ module core #(
 
 	wire			w_read_en;
 	wire			w_write_en;
+	wire			w_dread_en;
 
 	wire	[31:0]	w_lswrite_data, w_read_data;
 
@@ -296,7 +297,7 @@ module core #(
 			assign	o_memaddr		=	(w_vec_exec)	?	w_vmemaddr		:	w_result;
 	
 			assign	o_write_en		=	(w_vec_exec)	?	w_vwrite_en		:	w_write_en;
-			assign	o_read_en		=	(w_vec_exec)	?	w_vread_en		:	w_read_en;
+			assign	w_dread_en		=	(w_vec_exec)	?	w_vread_en		:	w_read_en;
 
 			assign	o_write_data	=	(w_vec_exec)	?	w_vwrite_data	:	w_lswrite_data;
 		end else begin
@@ -304,7 +305,7 @@ module core #(
 			assign	o_memaddr		=	w_result;
 	
 			assign	o_write_en		=	w_write_en;
-			assign	o_read_en		=	w_read_en;
+			assign	w_dread_en		=	w_read_en;
 
 			assign	o_write_data	=	w_lswrite_data;
 
@@ -312,7 +313,7 @@ module core #(
 		end
 	endgenerate
 
-	cache cache_base(
+	icache icache(
 		.clk		(clk), 
 		.rst		(rst),
 
@@ -327,5 +328,23 @@ module core #(
 	);
 
 	assign	o_iread_en	=	!w_icache_hit;
+
+	dcache dcache (
+		.clk		(clk), 
+		.rst		(rst),
+
+		.o_hit		(w_dcache_hit),
+
+		.i_wen		(o_write_en),
+		.i_wdata	(o_write_data),
+		.o_rdata	(w_lsread_data),
+		.i_addr		(o_memaddr),
+
+		.i_men		(i_read_vd),
+		.i_maddr	(o_memaddr),
+		.i_mdata	(i_read_data)
+	);
+
+	assign	o_read_en	=	!w_dcache_hit && w_dread_en;
 
 endmodule
