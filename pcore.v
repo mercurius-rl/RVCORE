@@ -12,6 +12,8 @@ module core #(
 
 	input	[31:0]	i_inst,
 	output	[31:0]	o_iaddr,
+	input			i_iread_vd,
+	output			o_iread_en,
 
 	input	[31:0]	i_read_data,
 	output			o_read_en,
@@ -36,10 +38,13 @@ module core #(
 	wire			w_vec_exec;
 
 	wire			w_load_wait;
+
+	wire			w_icache_hit;
 	
 	// ---------- Fetch ----------
 
 	wire	[31:0]	w_f_pc;
+	wire	[31:0]	w_f_inst;
 
 	wire			w_jump;
 	wire	[31:0]	w_jump_addr;
@@ -56,7 +61,7 @@ module core #(
 		.clk		(clk),
 		.rst		(rst),
 
-		.stall		(i_exstall || w_pstall || w_vec_exec || w_load_wait),
+		.stall		(i_exstall || w_pstall || w_vec_exec || w_load_wait || !w_icache_hit),
 
 		.jp_en		(w_jump || w_csr_jump),
 		.jp_addr	(w_jump_pc),
@@ -305,7 +310,7 @@ module core #(
 		.o_mw_fdata		(w_mw_fdata),
 
 		.i_f_pc			(w_f_pc),
-		.i_f_inst		(i_inst),
+		.i_f_inst		(w_f_inst),
 		.o_d_pc			(w_d_pc),
 		.o_d_inst		(w_inst),
 
@@ -399,7 +404,7 @@ module core #(
 				.i_datab	(w_db),
 				.i_ctrl		(w_e_aluctl),
 
-				.o_result	(w_e_mul_result)
+				.o_result	(w_m_mul_result)
 			);
 			assign	w_m_alu_result = (w_m_funct7 == 7'h1 && w_m_op == 7'b0110011) ?	w_m_mul_result : w_m_result;
 		end else begin
@@ -471,5 +476,21 @@ module core #(
 			assign	w_vec_exec	=	0;
 		end
 	endgenerate
+
+	cache_base cache (
+		.clk		(clk), 
+		.rst		(rst),
+
+		.o_hit		(w_icache_hit),
+
+		.o_rdata	(w_f_inst),
+		.i_addr		(w_f_pc),
+
+		.i_wen		(i_iread_vd),
+		.i_waddr	(w_f_pc),
+		.i_wdata	(i_inst)
+	);
+
+	assign	o_iread_en	=	!w_icache_hit;
 
 endmodule

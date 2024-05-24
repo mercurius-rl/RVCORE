@@ -67,3 +67,5 @@ Update history
 2023/08/21: Implemented illegal instruction exception.  
 2023/08/22: Added decodable function (fence, fence.i).  
 2024/05/23: Implemented MALU multicycle mode.  
+2024/05/24: Add Instruction cache, and setup Data cache Port.  
+2024/05/24: Fix testbench and simulation script.  

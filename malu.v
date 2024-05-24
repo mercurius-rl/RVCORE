@@ -143,8 +143,22 @@ module malu #(
 				.out(w_mul_result)
 			);
 
-			always @(*) begin
+			reg	[3:0]	r_ctrl;
+			reg	[31:0]	r_fresult;
+			always @(posedge clk) begin
+				r_ctrl	<=	i_ctrl;
+
 				case (i_ctrl)
+					DIV		:	r_fresult	<= $signed(i_dataa) / $signed(i_datab);
+					DIVU	:	r_fresult	<= i_dataa / i_datab;
+					REM		:	r_fresult	<= $signed(i_dataa) % $signed(i_datab);
+					REMU	:	r_fresult	<= i_dataa % i_datab;
+					default	:	r_fresult	<=	0;
+				endcase
+			end
+
+			always @(*) begin
+				case (r_ctrl)
 					MUL		:	r_result	<= w_mul_result[31:0];
 					MULH	:	r_result	<= w_mul_result[63:32];
 					MULHSU	:	r_result	<= w_mul_result[63:32];
