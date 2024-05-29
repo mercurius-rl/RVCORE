@@ -505,7 +505,7 @@ module core #(
 		.o_rdata	(w_lsread_data),
 		.i_addr		(o_memaddr),
 
-		.i_men		(i_read_vd),
+		.i_mwen		(i_read_vd),
 		.i_maddr	(o_memaddr),
 		.i_mdata	(i_read_data)
 	);

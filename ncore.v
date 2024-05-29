@@ -68,7 +68,7 @@ module core #(
 	wire			w_write_en;
 	wire			w_dread_en;
 
-	wire	[31:0]	w_lswrite_data, w_read_data;
+	wire	[31:0]	w_lswrite_data, w_lsread_data, w_read_data;
 
 	wire			w_csri;
 	wire	[1:0]	w_csrop;
@@ -231,7 +231,7 @@ module core #(
 		.o_rdata	(w_read_data),
 
 		.o_wdata	(w_lswrite_data),
-		.i_rdata	(i_read_data)
+		.i_rdata	(w_lsread_data)
 	);
 
 	generate
@@ -340,7 +340,7 @@ module core #(
 		.o_rdata	(w_lsread_data),
 		.i_addr		(o_memaddr),
 
-		.i_men		(i_read_vd),
+		.i_mwen		(i_read_vd),
 		.i_maddr	(o_memaddr),
 		.i_mdata	(i_read_data)
 	);
