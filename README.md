@@ -70,3 +70,4 @@ Update history
 2024/05/24: Add Instruction cache, and setup Data cache Port.  
 2024/05/24: Fix testbench and simulation script.  
 2024/05/24: Add Data cache and rename module.  
+2024/06/01: Fix Vector Extention unit(memory access).  
