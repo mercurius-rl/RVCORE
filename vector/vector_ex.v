@@ -27,6 +27,7 @@ module vector_ex #(
 	output	[31:0]		o_write_data,
 
 	output				o_read_en,
+	input				i_read_vd,
 	input	[31:0]		i_read_data,
 	output	[31:0]		o_memaddr
 );
@@ -222,6 +223,7 @@ module vector_ex #(
 		.o_write_data	(o_write_data),
 
 		.o_read_en		(o_read_en),
+		.i_read_vd		(i_read_vd),
 		.i_read_data	(i_read_data),
 		.o_memaddr		(o_memaddr)
 	);

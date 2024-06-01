@@ -38,6 +38,7 @@ module vma #(
 	output	[31:0]		o_write_data,
 
 	output				o_read_en,
+	output				i_read_vd,
 	input	[31:0]		i_read_data,
 	output	[31:0]		o_memaddr
 );
@@ -243,8 +244,8 @@ module vma #(
 	reg		[VLENMEM-1:0]	r_vccount;
 	reg		[VLENMEM:0]		r_vc_next_overflow;
 	wire	[VLENMEM-1:0]	w_next_vcccount;
-	wire					w_vec_load; // load data to vector register flag
-	wire					w_vec_store;  // store data from vector register flag
+	wire					w_vec_load;		// load data to vector register flag
+	wire					w_vec_store;	// store data from vector register flag
 
 	wire	[10:0]	w_vccw;
 	assign	w_vccw			=	(i_sew >= 11'h20) ? 32 : i_sew;
@@ -260,7 +261,7 @@ module vma #(
 		end else begin
 			if (r_state == IDLE) begin
 				r_vccount			<=	0;
-			end else if (o_read_en | o_write_en) begin
+			end else if ((o_read_en & i_read_vd) | o_write_en) begin
 				r_vccount			<=	w_next_vcccount;
 			end
 			r_vc_next_overflow	<= r_vccount + w_vccw;
@@ -274,7 +275,7 @@ module vma #(
 		end else begin
 			if (r_state == IDLE) begin
 				r_tmp_vreg	<=	0;
-			end else if (o_read_en) begin
+			end else if (o_read_en & i_read_vd) begin
 				if (i_sew == 11'h08) begin
 					if (w_vec_load) begin
 						r_tmp_vreg	<=	'h0 + i_read_data[7:0];

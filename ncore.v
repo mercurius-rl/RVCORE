@@ -86,7 +86,7 @@ module core #(
 						(w_sew == 11'h80)	? (VLEN / 128) *  w_lmul	:	// 128bit
 						0;
 
-	assign	w_load_wait = (w_op == 7'b0000011) ? !(o_read_en && i_read_vd) : 0;
+	assign	w_load_wait = (w_op == 7'b0000011 || w_op == 7'b0000111) ? !(o_read_en && i_read_vd) : 0;
 
 	wire	[31:0]	w_csrid;
 
@@ -290,6 +290,7 @@ module core #(
 				.o_write_data	(w_vwrite_data),
 
 				.o_read_en		(w_vread_en),
+				.i_read_vd		(!w_load_wait),
 				.i_read_data	(i_read_data),
 				.o_memaddr		(w_vmemaddr)
 			);

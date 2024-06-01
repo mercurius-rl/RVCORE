@@ -344,8 +344,8 @@ module datapath(
 	assign	o_mw_fdata	=	i_w_rd;
 
 	// stall function
-
-	assign	load_wait	=	(i_m_op == 7'b0000011) ? !(i_m_read_en && i_m_read_vd) : 0;
+	//							standard load			vec or float load 
+	assign	load_wait	=	(i_m_op == 7'b0000011 || i_m_op == 7'b0000111) ? !(i_m_read_en && i_m_read_vd) : 0;
 
 	assign	stall 	=	(((i_d_rs1a == r_de_rda) || (i_d_rs2a == r_de_rda)) && r_de_read_en) || // memory load stall
 						(i_jump && r_de_rfwe && (r_de_rda == i_d_rs1a || r_de_rda == i_d_rs2a)) || // branch stall

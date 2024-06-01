@@ -450,6 +450,7 @@ module core #(
 				.o_write_data	(w_vwrite_data),
 
 				.o_read_en		(w_vread_en),
+				.i_read_vd		(!w_load_wait),
 				.i_read_data	(w_lsread_data),
 				.o_memaddr		(w_vmemaddr)
 			);
