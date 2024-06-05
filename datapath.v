@@ -72,7 +72,7 @@ module datapath(
 	input			i_m_read_vd,
 	input	[4:0]	i_m_rda,
 	input	[31:0]	i_m_result, i_m_memdata,
-	output			i_m_rfwe,
+	input			i_m_rfwe,
 	input			i_m_csrr,
 	input	[31:0]	i_m_csrod,
 	output	[4:0]	o_w_rda,
@@ -91,7 +91,7 @@ module datapath(
 	reg		[31:0]	r_fd_pc;
 	reg		[31:0]	r_fd_inst;
 
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_fd_pc			<=	32'h0;
 			r_fd_inst		<=	32'h0;
@@ -119,7 +119,7 @@ module datapath(
 	reg		[3:0]	r_de_aluctl;
 	reg				r_de_imm_rs;
 
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_de_op			<=	7'h0;
 			r_de_funct3		<=	3'h0;
@@ -226,7 +226,7 @@ module datapath(
 	reg		[31:0]	r_em_csrod;
 	reg				r_em_csrr;
 
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_em_op			<=	7'h0;
 			r_em_funct3		<=	3'h0;
@@ -294,7 +294,7 @@ module datapath(
 	reg		[31:0]	r_mw_csrod;
 	reg				r_mw_csrr;
 
-	always @(negedge clk) begin
+	always @(negedge clk or posedge rst) begin
 		if (rst) begin
 			r_mw_rda		<=	5'h0;
 			r_mw_result		<=	32'h0;

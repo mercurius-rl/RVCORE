@@ -18,7 +18,7 @@ module imem #(
 	initial	$readmemh("data.dat", mem);
 
 	reg	[31:0]	r_c=1, r_pc=0;
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_pc	<=	0;
 			r_c		<=	0;

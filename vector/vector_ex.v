@@ -42,7 +42,7 @@ module vector_ex #(
 	wire	w_alu_done;
 
 	reg		[3:0]	r_vmstate;
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_vmstate	<=	IDLE;
 		end else begin
@@ -114,7 +114,7 @@ module vector_ex #(
 	reg		[4:0]	r_vs1a, r_vs2a, r_vsda;
 	reg		[2:0]	r_vacount;
 	reg				r_alu_done;
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_vs1a		<=	0;
 			r_vs2a		<=	0;

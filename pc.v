@@ -12,7 +12,7 @@ module pc (
 
 	reg		[31:0]	r_addr;
 
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_addr	<=	32'h0;
 		end else begin

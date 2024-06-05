@@ -186,6 +186,9 @@ module core #(
 		.i_interrupt_enter(w_excp_en || i_interrupt),
 		.i_interrupt_exit(w_return),
 
+		.o_interrupt(),
+		.o_interrupt_data(),
+
 		.i_datain	(w_csrid),
 		.o_dataout	(w_csrod),
 		.i_csr_op	(w_csrop),

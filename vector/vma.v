@@ -119,7 +119,7 @@ module vma #(
 
 	assign	busy		=	(r_state != IDLE);
 	
-	always @( posedge clk ) begin
+	always @( posedge clk or posedge rst ) begin
 		if (rst) begin
 			r_state	<=	IDLE;
 		end else begin
@@ -209,7 +209,7 @@ module vma #(
 
 	assign	o_memaddr	= r_maddr;
 
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_maddr			<=	32'h0;
 			r_accaddr		<=	32'h0;
@@ -254,7 +254,7 @@ module vma #(
 
 	assign	w_next_vcccount = r_vccount + w_vccw;
 
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_vccount			<=	'h0;
 			r_vc_next_overflow	<=	'h0;
@@ -269,7 +269,7 @@ module vma #(
 	end
 
 	// Vector data configurator
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_tmp_vreg		<=	'h0;
 		end else begin
@@ -315,7 +315,7 @@ module vma #(
 	reg		[4:0]	r_rsaddr;
 	assign	o_rraddr		=	r_rsaddr;
 	assign	o_vr_en			=	w_vec_load;
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_rsaddr	<=	0;
 		end else begin
@@ -334,7 +334,7 @@ module vma #(
 	// Write
 	reg		[4:0]	r_wsaddr;
 	assign	o_wraddr		=	r_wsaddr;
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_wsaddr	<=	0;
 		end else begin

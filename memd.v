@@ -15,7 +15,7 @@ module dmem #(
 	reg [31:0] mem[0:1024*8-1];
 
 	reg	[31:0]	r_c=1, r_addr=0;
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			r_addr	<=	0;
 			r_c		<=	0;

@@ -17,7 +17,7 @@ module icache(
 	reg		[57:0]	buffer	[0:31];
 
 	integer i;
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			for (i = 0; i < 32; i = i + 1) begin
 				buffer[i]		<=	58'b0;
@@ -53,7 +53,7 @@ module dcache(
 	reg		[57:0]	buffer	[0:31];
 
 	integer i;
-	always @(posedge clk) begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			for (i = 0; i < 32; i = i + 1) begin
 				buffer[i]		<=	58'b0;
