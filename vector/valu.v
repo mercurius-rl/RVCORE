@@ -30,52 +30,52 @@ module valu #(
 			11'h8: begin
 				case (i_ctrl)
 					VAND : begin
-						for (i = 0; i <= VLEN; i = i + 8) begin
+						for (i = 0; i < VLEN; i = i + 8) begin
 							r_result[i+:8]	<=	i_dataa[i+:8] & i_datab[i+:8];
 						end
 					end
 					VOR : begin
-						for (i = 0; i <= VLEN; i = i + 8) begin
+						for (i = 0; i < VLEN; i = i + 8) begin
 							r_result[i+:8]	<=	i_dataa[i+:8] | i_datab[i+:8];
 						end
 					end
 					VXOR : begin
-						for (i = 0; i <= VLEN; i = i + 8) begin
+						for (i = 0; i < VLEN; i = i + 8) begin
 							r_result[i+:8]	<=	i_dataa[i+:8] ^ i_datab[i+:8];
 						end
 					end
 					VADD : begin
-						for (i = 0; i <= VLEN; i = i + 8) begin
+						for (i = 0; i < VLEN; i = i + 8) begin
 							r_result[i+:8]	<=	i_dataa[i+:8] + i_datab[i+:8];
 						end
 					end
 					VSUB : begin
-						for (i = 0; i <= VLEN; i = i + 8) begin
+						for (i = 0; i < VLEN; i = i + 8) begin
 							r_result[i+:8]	<=	i_dataa[i+:8] - i_datab[i+:8];
 						end
 					end
 					VSLT : begin
-						for (i = 0; i <= VLEN; i = i + 8) begin
+						for (i = 0; i < VLEN; i = i + 8) begin
 							r_result[i+:8]	<=	$signed(i_dataa[i+:8]) < $signed(i_datab[i+:8]);
 						end
 					end
 					VSLTU : begin
-						for (i = 0; i <= VLEN; i = i + 8) begin
+						for (i = 0; i < VLEN; i = i + 8) begin
 							r_result[i+:8]	<=	i_dataa[i+:8] < i_datab[i+:8];
 						end
 					end
 					VSLL : begin
-						for (i = 0; i <= VLEN; i = i + 8) begin
+						for (i = 0; i < VLEN; i = i + 8) begin
 							r_result[i+:8]	<=	i_dataa[i+:8] << i_datab[i+:8];
 						end
 					end
 					VSRL : begin
-						for (i = 0; i <= VLEN; i = i + 8) begin
+						for (i = 0; i < VLEN; i = i + 8) begin
 							r_result[i+:8]	<=	i_dataa[i+:8] >> i_datab[i+:8];
 						end
 					end
 					VSRA : begin
-						for (i = 0; i <= VLEN; i = i + 8) begin
+						for (i = 0; i < VLEN; i = i + 8) begin
 							r_result[i+:8]	<=	$signed(i_dataa[i+:8]) >>> $signed(i_datab[i+:8]);
 						end
 					end
@@ -87,52 +87,52 @@ module valu #(
 			11'h10: begin
 				case (i_ctrl)
 					VAND : begin
-						for (i = 0; i <= VLEN; i = i + 16) begin
+						for (i = 0; i < VLEN; i = i + 16) begin
 							r_result[i+:16]	<=	i_dataa[i+:16] & i_datab[i+:16];
 						end
 					end
 					VOR : begin
-						for (i = 0; i <= VLEN; i = i + 16) begin
+						for (i = 0; i < VLEN; i = i + 16) begin
 							r_result[i+:16]	<=	i_dataa[i+:16] | i_datab[i+:16];
 						end
 					end
 					VXOR : begin
-						for (i = 0; i <= VLEN; i = i + 16) begin
+						for (i = 0; i < VLEN; i = i + 16) begin
 							r_result[i+:16]	<=	i_dataa[i+:16] ^ i_datab[i+:16];
 						end
 					end
 					VADD : begin
-						for (i = 0; i <= VLEN; i = i + 16) begin
+						for (i = 0; i < VLEN; i = i + 16) begin
 							r_result[i+:16]	<=	i_dataa[i+:16] + i_datab[i+:16];
 						end
 					end
 					VSUB : begin
-						for (i = 0; i <= VLEN; i = i + 16) begin
+						for (i = 0; i < VLEN; i = i + 16) begin
 							r_result[i+:16]	<=	i_dataa[i+:16] - i_datab[i+:16];
 						end
 					end
 					VSLT : begin
-						for (i = 0; i <= VLEN; i = i + 16) begin
+						for (i = 0; i < VLEN; i = i + 16) begin
 							r_result[i+:16]	<=	$signed(i_dataa[i+:16]) < $signed(i_datab[i+:16]);
 						end
 					end
 					VSLTU : begin
-						for (i = 0; i <= VLEN; i = i + 16) begin
+						for (i = 0; i < VLEN; i = i + 16) begin
 							r_result[i+:16]	<=	i_dataa[i+:16] < i_datab[i+:16];
 						end
 					end
 					VSLL : begin
-						for (i = 0; i <= VLEN; i = i + 16) begin
+						for (i = 0; i < VLEN; i = i + 16) begin
 							r_result[i+:16]	<=	i_dataa[i+:16] << i_datab[i+:16];
 						end
 					end
 					VSRL : begin
-						for (i = 0; i <= VLEN; i = i + 16) begin
+						for (i = 0; i < VLEN; i = i + 16) begin
 							r_result[i+:16]	<=	i_dataa[i+:16] >> i_datab[i+:16];
 						end
 					end
 					VSRA : begin
-						for (i = 0; i <= VLEN; i = i + 16) begin
+						for (i = 0; i < VLEN; i = i + 16) begin
 							r_result[i+:16]	<=	$signed(i_dataa[i+:16]) >>> $signed(i_datab[i+:16]);
 						end
 					end
@@ -144,52 +144,52 @@ module valu #(
 			11'h20: begin
 				case (i_ctrl)
 					VAND : begin
-						for (i = 0; i <= VLEN; i = i + 32) begin
+						for (i = 0; i < VLEN; i = i + 32) begin
 							r_result[i+:32]	<=	i_dataa[i+:32] & i_datab[i+:32];
 						end
 					end
 					VOR : begin
-						for (i = 0; i <= VLEN; i = i + 32) begin
+						for (i = 0; i < VLEN; i = i + 32) begin
 							r_result[i+:32]	<=	i_dataa[i+:32] | i_datab[i+:32];
 						end
 					end
 					VXOR : begin
-						for (i = 0; i <= VLEN; i = i + 32) begin
+						for (i = 0; i < VLEN; i = i + 32) begin
 							r_result[i+:32]	<=	i_dataa[i+:32] ^ i_datab[i+:32];
 						end
 					end
 					VADD : begin
-						for (i = 0; i <= VLEN; i = i + 32) begin
+						for (i = 0; i < VLEN; i = i + 32) begin
 							r_result[i+:32]	<=	i_dataa[i+:32] + i_datab[i+:32];
 						end
 					end
 					VSUB : begin
-						for (i = 0; i <= VLEN; i = i + 32) begin
+						for (i = 0; i < VLEN; i = i + 32) begin
 							r_result[i+:32]	<=	i_dataa[i+:32] - i_datab[i+:32];
 						end
 					end
 					VSLT : begin
-						for (i = 0; i <= VLEN; i = i + 32) begin
+						for (i = 0; i < VLEN; i = i + 32) begin
 							r_result[i+:32]	<=	$signed(i_dataa[i+:32]) < $signed(i_datab[i+:32]);
 						end
 					end
 					VSLTU : begin
-						for (i = 0; i <= VLEN; i = i + 32) begin
+						for (i = 0; i < VLEN; i = i + 32) begin
 							r_result[i+:32]	<=	i_dataa[i+:32] < i_datab[i+:32];
 						end
 					end
 					VSLL : begin
-						for (i = 0; i <= VLEN; i = i + 32) begin
+						for (i = 0; i < VLEN; i = i + 32) begin
 							r_result[i+:32]	<=	i_dataa[i+:32] << i_datab[i+:32];
 						end
 					end
 					VSRL : begin
-						for (i = 0; i <= VLEN; i = i + 32) begin
+						for (i = 0; i < VLEN; i = i + 32) begin
 							r_result[i+:32]	<=	i_dataa[i+:32] >> i_datab[i+:32];
 						end
 					end
 					VSRA : begin
-						for (i = 0; i <= VLEN; i = i + 32) begin
+						for (i = 0; i < VLEN; i = i + 32) begin
 							r_result[i+:32]	<=	$signed(i_dataa[i+:32]) >>> $signed(i_datab[i+:32]);
 						end
 					end
@@ -201,52 +201,52 @@ module valu #(
 			11'h40: begin
 				case (i_ctrl)
 					VAND : begin
-						for (i = 0; i <= VLEN; i = i + 64) begin
+						for (i = 0; i < VLEN; i = i + 64) begin
 							r_result[i+:64]	<=	i_dataa[i+:64] & i_datab[i+:64];
 						end
 					end
 					VOR : begin
-						for (i = 0; i <= VLEN; i = i + 64) begin
+						for (i = 0; i < VLEN; i = i + 64) begin
 							r_result[i+:64]	<=	i_dataa[i+:64] | i_datab[i+:64];
 						end
 					end
 					VXOR : begin
-						for (i = 0; i <= VLEN; i = i + 64) begin
+						for (i = 0; i < VLEN; i = i + 64) begin
 							r_result[i+:64]	<=	i_dataa[i+:64] ^ i_datab[i+:64];
 						end
 					end
 					VADD : begin
-						for (i = 0; i <= VLEN; i = i + 64) begin
+						for (i = 0; i < VLEN; i = i + 64) begin
 							r_result[i+:64]	<=	i_dataa[i+:64] + i_datab[i+:64];
 						end
 					end
 					VSUB : begin
-						for (i = 0; i <= VLEN; i = i + 64) begin
+						for (i = 0; i < VLEN; i = i + 64) begin
 							r_result[i+:64]	<=	i_dataa[i+:64] - i_datab[i+:64];
 						end
 					end
 					VSLT : begin
-						for (i = 0; i <= VLEN; i = i + 64) begin
+						for (i = 0; i < VLEN; i = i + 64) begin
 							r_result[i+:64]	<=	$signed(i_dataa[i+:64]) < $signed(i_datab[i+:64]);
 						end
 					end
 					VSLTU : begin
-						for (i = 0; i <= VLEN; i = i + 64) begin
+						for (i = 0; i < VLEN; i = i + 64) begin
 							r_result[i+:64]	<=	i_dataa[i+:64] < i_datab[i+:64];
 						end
 					end
 					VSLL : begin
-						for (i = 0; i <= VLEN; i = i + 64) begin
+						for (i = 0; i < VLEN; i = i + 64) begin
 							r_result[i+:64]	<=	i_dataa[i+:64] << i_datab[i+:64];
 						end
 					end
 					VSRL : begin
-						for (i = 0; i <= VLEN; i = i + 64) begin
+						for (i = 0; i < VLEN; i = i + 64) begin
 							r_result[i+:64]	<=	i_dataa[i+:64] >> i_datab[i+:64];
 						end
 					end
 					VSRA : begin
-						for (i = 0; i <= VLEN; i = i + 64) begin
+						for (i = 0; i < VLEN; i = i + 64) begin
 							r_result[i+:64]	<=	$signed(i_dataa[i+:64]) >>> $signed(i_datab[i+:64]);
 						end
 					end
@@ -258,52 +258,52 @@ module valu #(
 			11'h80: begin
 				case (i_ctrl)
 					VAND : begin
-						for (i = 0; i <= VLEN; i = i + 128) begin
+						for (i = 0; i < VLEN; i = i + 128) begin
 							r_result[i+:128]	<=	i_dataa[i+:128] & i_datab[i+:128];
 						end
 					end
 					VOR : begin
-						for (i = 0; i <= VLEN; i = i + 128) begin
+						for (i = 0; i < VLEN; i = i + 128) begin
 							r_result[i+:128]	<=	i_dataa[i+:128] | i_datab[i+:128];
 						end
 					end
 					VXOR : begin
-						for (i = 0; i <= VLEN; i = i + 128) begin
+						for (i = 0; i < VLEN; i = i + 128) begin
 							r_result[i+:128]	<=	i_dataa[i+:128] ^ i_datab[i+:128];
 						end
 					end
 					VADD : begin
-						for (i = 0; i <= VLEN; i = i + 128) begin
+						for (i = 0; i < VLEN; i = i + 128) begin
 							r_result[i+:128]	<=	i_dataa[i+:128] + i_datab[i+:128];
 						end
 					end
 					VSUB : begin
-						for (i = 0; i <= VLEN; i = i + 128) begin
+						for (i = 0; i < VLEN; i = i + 128) begin
 							r_result[i+:128]	<=	i_dataa[i+:128] - i_datab[i+:128];
 						end
 					end
 					VSLT : begin
-						for (i = 0; i <= VLEN; i = i + 128) begin
+						for (i = 0; i < VLEN; i = i + 128) begin
 							r_result[i+:128]	<=	$signed(i_dataa[i+:128]) < $signed(i_datab[i+:128]);
 						end
 					end
 					VSLTU : begin
-						for (i = 0; i <= VLEN; i = i + 128) begin
+						for (i = 0; i < VLEN; i = i + 128) begin
 							r_result[i+:128]	<=	i_dataa[i+:128] < i_datab[i+:128];
 						end
 					end
 					VSLL : begin
-						for (i = 0; i <= VLEN; i = i + 128) begin
+						for (i = 0; i < VLEN; i = i + 128) begin
 							r_result[i+:128]	<=	i_dataa[i+:128] << i_datab[i+:128];
 						end
 					end
 					VSRL : begin
-						for (i = 0; i <= VLEN; i = i + 128) begin
+						for (i = 0; i < VLEN; i = i + 128) begin
 							r_result[i+:128]	<=	i_dataa[i+:128] >> i_datab[i+:128];
 						end
 					end
 					VSRA : begin
-						for (i = 0; i <= VLEN; i = i + 128) begin
+						for (i = 0; i < VLEN; i = i + 128) begin
 							r_result[i+:128]	<=	$signed(i_dataa[i+:128]) >>> $signed(i_datab[i+:128]);
 						end
 					end
