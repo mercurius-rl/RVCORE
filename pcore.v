@@ -27,19 +27,19 @@ module core #(
 	wire	[31:0]	w_w_rd;
 	wire			w_w_rfwe;
 
-	(* mark_debug = "true" *)wire			w_forward_dm1, w_forward_dm2, 
+	wire			w_forward_dm1, w_forward_dm2, 
 					w_forward_em1, w_forward_em2,
 					w_forward_ew1, w_forward_ew2, 
 					w_forward_mw2;
-	(* mark_debug = "true" *)wire	[31:0]	w_dm_fdata, w_em_fdata, w_ew_fdata, w_mw_fdata;
+	wire	[31:0]	w_dm_fdata, w_em_fdata, w_ew_fdata, w_mw_fdata;
 
-	(* mark_debug = "true" *)wire			w_pstall;
+	wire			w_pstall;
 
-	(* mark_debug = "true" *)wire			w_vec_exec;
+	wire			w_vec_exec;
 
-	(* mark_debug = "true" *)wire			w_load_wait;
+	wire			w_load_wait;
 
-	(* mark_debug = "true" *)wire			w_icache_hit, w_dcache_hit;
+	wire			w_icache_hit, w_dcache_hit;
 	
 	// ---------- Fetch ----------
 
