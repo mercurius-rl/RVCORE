@@ -6,7 +6,7 @@ RISC-V Core written in Verilog
 There are simple RISC-V cores (single cycle and pipeline).
 
 ### Block Diagram of RV32IMV Pipelined Core
-![Pipelined Core](image_rv32imv_pipe_v2_cache.png)
+![Pipelined Core](image_rv32imfv_pipe_v3_cache.png)
 
 License
 ========================================
@@ -22,6 +22,7 @@ Support ISA
 (Unimplemented) wfi, sfence.vma
 ```
 #### RV32M
+#### RV32F
 #### RV32V
 ```
 vl, vls, vs, vss, opivv (Vector mask function not implemented)
@@ -71,3 +72,4 @@ Update history
 2024/05/24: Fix testbench and simulation script.  
 2024/05/24: Add Data cache and rename module.  
 2024/06/01: Fix Vector Extention unit(memory access).  
+2024/06/30: Add FPU function. (but not verify and partial instruction impl)  

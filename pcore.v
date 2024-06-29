@@ -1,5 +1,6 @@
 module core #(
 	parameter RVM = "FALSE",
+	parameter RVF = "FALSE",
 	parameter RVV = "FALSE",
 	parameter VLEN = 128
 )(
@@ -259,11 +260,11 @@ module core #(
 	wire	[31:0]	w_m_csrod;
 
 	wire	[4:0]	w_m_rs2a, w_m_rda;
-	wire			w_m_rfwe;
+	wire			w_m_rfwe, w_m_rfwe_reg;
 
 	wire	[31:0]	w_m_write_data, w_lswrite_data, w_m_read_data, w_lsread_data;
 	wire			w_m_write_en, w_m_read_en;
-	wire	[31:0]	w_m_alu_result;
+	wire	[31:0]	w_m_alu_result, w_m_int_result;
 
 	lsunit lsunit(
 		.i_op		(w_m_op),
@@ -290,7 +291,7 @@ module core #(
 						(w_read_en)	?	w_w_memdata :
 										w_w_result;
 
-	
+
 	datapath dp(
 		.clk			(clk),
 		.rst			(rst),
@@ -355,7 +356,7 @@ module core #(
 		.o_m_funct3(w_m_funct3),
 		.o_m_funct7(w_m_funct7),
 		.o_m_rs2a(w_m_rs2a), .o_m_rda(w_m_rda),
-		.o_m_rs2(w_m_rs2), .o_m_result(w_m_result),
+		.o_m_rs2(w_m_rs2), .o_m_result(w_m_alu_result),
 		.o_m_rfwe(w_m_rfwe),
 		.o_m_write_en(w_m_write_en), .o_m_read_en(w_m_read_en),
 		.o_m_csrr(w_m_csrr),
@@ -366,7 +367,7 @@ module core #(
 		.i_m_read_vd(i_read_vd),
 		.i_m_rda(w_m_rda),
 		.i_m_result(w_m_alu_result), .i_m_memdata(w_m_read_data),
-		.i_m_rfwe(w_m_rfwe),
+		.i_m_rfwe(w_m_rfwe_reg),
 		.i_m_csrr(w_m_csrr),
 		.i_m_csrod(w_m_csrod),
 		.o_w_rda(w_w_rda),
@@ -410,9 +411,9 @@ module core #(
 
 				.o_result	(w_m_mul_result)
 			);
-			assign	w_m_alu_result = (w_m_funct7 == 7'h1 && w_m_op == 7'b0110011) ?	w_m_mul_result : w_m_result;
+			assign	w_m_int_result = (w_m_funct7 == 7'h1 && w_m_op == 7'b0110011) ?	w_m_mul_result : w_m_alu_result;
 		end else begin
-			assign	w_m_alu_result = w_m_result;
+			assign	w_m_int_result = w_m_alu_result;
 		end
 	endgenerate
 
@@ -458,7 +459,7 @@ module core #(
 				.o_memaddr		(w_vmemaddr)
 			);
 
-			assign	o_memaddr		=	(w_vec_exec)	?	w_vmemaddr	:	w_m_result;
+			assign	o_memaddr		=	(w_vec_exec)	?	w_vmemaddr	:	w_m_alu_result;
 	
 			assign	o_write_en		=	(w_vec_exec)	?	w_vwrite_en	:	w_m_write_en;
 			assign	w_read_en		=	(w_vec_exec)	?	w_vread_en	:	w_m_read_en;
@@ -469,7 +470,7 @@ module core #(
 										w_m_rs2;
 		end else begin
 
-			assign	o_memaddr		=	w_m_result;
+			assign	o_memaddr		=	w_m_alu_result;
 	
 			assign	o_write_en		=	w_m_write_en;
 			assign	w_read_en		=	w_m_read_en;
@@ -479,6 +480,43 @@ module core #(
 			assign	o_write_data	=	w_lswrite_data;
 
 			assign	w_vec_exec	=	0;
+		end
+	endgenerate
+
+	generate
+		if (RVF == "TRUE") begin
+			wire	[31:0]	w_m_float_result, w_m_fdata;
+			wire			w_m_rfwe_float;
+			fpu fpu(
+				.clk		(clk),
+				.rst		(rst),
+
+				.i_ops		(w_e_op),
+				.i_funct7	(w_e_funct7),
+				.i_funct3	(w_e_funct3),
+
+				.rs1_a		(w_e_rs1a),
+				.rs2_a		(w_e_rs2a),
+				.rd_a		(w_w_rda),
+
+				.rs1_d		(w_e_rs1),
+
+				.out		(w_m_float_result),
+
+				.rd_en		(w_m_rfwe_float),
+				.rd_data	(w_m_fdata)
+			);
+
+			assign	w_m_rfwe_reg	=	(w_op != 7'b0000111) ? w_m_rfwe : 1'b0;
+			assign	w_m_rfwe_float	=	(w_op == 7'b0000111) ? w_m_rfwe : 1'b0;
+
+			assign	w_m_result	=	(w_m_op == 7'b1010011) ? w_m_float_result : w_m_int_result;
+			assign	w_m_fdata 	=	w_m_read_en ? w_m_read_data : w_m_result;
+
+		end else begin
+			assign	w_m_rfwe_reg	=	w_rfwe;
+
+			assign	w_m_result	=	w_m_int_result;
 		end
 	endgenerate
 

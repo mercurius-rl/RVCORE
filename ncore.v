@@ -1,5 +1,6 @@
 module core #(
 	parameter RVM = "FALSE",
+	parameter RVF = "FALSE",
 	parameter RVV = "FALSE",
 	parameter VLEN = 128
 )(
@@ -92,7 +93,7 @@ module core #(
 
 	wire	[3:0]	w_aluctl;
 	wire			w_imm_rs;
-	wire			w_rfwe;
+	wire			w_rfwe, w_rfwe_reg;
 
 	wire	[31:0]	w_imm;
 
@@ -132,7 +133,7 @@ module core #(
 
 		.i_wdata	(w_rd),
 		.i_wad		(w_rda),
-		.i_we		(w_rfwe),
+		.i_we		(w_rfwe_reg),
 
 		.o_rdataa	(w_rs1),
 		.i_rada		(w_rs1a),
@@ -197,8 +198,8 @@ module core #(
 
 	wire	[31:0]	w_da, w_db;
 
-	wire	[31:0]	w_result;
 	wire	[31:0]	w_alu_result;
+	wire	[31:0]	w_result;
 
 	alu alu(
 		.i_dataa	(w_da),
@@ -218,10 +219,6 @@ module core #(
 			r_csrr	<=	w_csrr;
 		end
 	end
-
-	assign	w_rd	=	(r_csrr)	?	w_csrod :
-						(w_read_en)	?	w_read_data :
-										w_result;
 
 	assign	w_da =		w_rs1;
 	assign	w_db =		(w_imm_rs)	? w_imm :	w_rs2;
@@ -314,6 +311,46 @@ module core #(
 			assign	o_write_data	=	w_lswrite_data;
 
 			assign	w_vec_exec	=	0;
+		end
+	endgenerate
+
+	generate
+		if (RVF == "TRUE") begin
+			wire	[31:0]	w_float_result;
+			wire			w_rfwe_float;
+			fpu fpu(
+				.clk		(clk),
+				.rst		(rst),
+
+				.i_ops		(w_op),
+				.i_funct7	(w_funct7),
+				.i_funct3	(w_funct3),
+
+				.rs1_a		(w_rs1a),
+				.rs2_a		(w_rs2a),
+				.rd_a		(w_rda),
+
+				.rs1_d		(w_rs1),
+
+				.out		(w_float_result),
+
+				.rd_en		(w_rfwe_float),
+				.rd_data	(w_rd)
+			);
+
+			assign	w_rfwe_reg	=	(w_op != 7'b0000111) ? w_rfwe : 1'b0;
+			assign	w_rfwe_float=	(w_op == 7'b0000111) ? w_rfwe : 1'b0;
+
+			assign	w_rd	=	(r_csrr)	?	w_csrod :
+								(w_op == 7'b1010011) ? w_float_result :
+								(w_read_en)	?	w_read_data :
+												w_result;
+
+		end else begin
+			assign	w_rfwe_reg	=	w_rfwe;
+			assign	w_rd	=	(r_csrr)	?	w_csrod :
+								(w_read_en)	?	w_read_data :
+												w_result;
 		end
 	endgenerate
 

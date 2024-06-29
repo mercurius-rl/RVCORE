@@ -51,20 +51,27 @@ module decoder (
 						(o_op == 7'b1100111)	?	{20'h0, i_inst[31:20]}	:
 						// CSR Instruction
 						(o_op == 7'b1110011)	?	{27'h0, i_inst[19:15]}	:
+						// Float Load Instruction
+						(o_op == 7'b0000111)	?	{20'h0, i_inst[31:20]}	:
+						// Float Store Instruction
+						(o_op == 7'b0100111)	?	{20'h0, i_inst[31:25],i_inst[11:7]}	:
 													32'h00000000;
 
 	assign	o_imm_rs=	(  o_op == 7'b0000011
+						|| o_op == 7'b0000111
 						|| o_op == 7'b0100011
+						|| o_op == 7'b0100111
 						|| o_op == 7'b0010011 
 						|| o_op == 7'b1100011 
 						|| o_op == 7'b1100111 
 						|| o_op == 7'b1101011 
 						|| o_op == 7'b1101111)	?	1 : 0;
 	assign	o_pc_rs	=	(o_op == 7'b0010111 || o_op == 7'b1100111)	?	1 : 0;
-	assign	o_rfwe	= 	(o_op[5:0] != 6'b100011) ? 1 : 0;
+	assign	o_rfwe	= 	((o_op == 7'b1010011 && (o_funct7[6:2] == 5'b10100 || o_funct7[6:2] == 5'b11000)) || 
+						(o_op == 7'b0000111)) ? 1 : 0;
 
-	assign	o_mwen	=	(o_op == 7'b0100011) ? 1 : 0;
-	assign	o_mren	=	(o_op == 7'b0000011) ? 1 : 0;
+	assign	o_mwen	=	(o_op == 7'b0100011 || o_op == 7'b0100111) ? 1 : 0;
+	assign	o_mren	=	(o_op == 7'b0000011 || o_op == 7'b0000111) ? 1 : 0;
 
 	assign	o_csri	=	((!o_return || !o_excp_en) && o_op == 7'b1110011) ? i_inst[14] : 0;
 	assign	o_csrop	=	((!o_return || !o_excp_en) && o_op == 7'b1110011) ? i_inst[13:12] : 0;
